@@ -2,7 +2,6 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: istio-gateway
 resources:
-  - ../../../base
+  - ../../base
   - public-gateway.yaml
-  - certificate.yaml
-  # - fieldlab-egress-gateway.yaml
+  - hpa.yaml

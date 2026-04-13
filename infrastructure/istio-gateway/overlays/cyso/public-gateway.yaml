@@ -1,0 +1,43 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: public-gateway
+  annotations:
+    service.beta.kubernetes.io/port_80_health-probe_protocol: "TCP"
+    service.beta.kubernetes.io/port_443_health-probe_protocol: "TCP"
+    cert-manager.io/cluster-issuer: letsencrypt-production
+spec:
+  gatewayClassName: istio
+  listeners:
+  - name: http
+    port: 80
+    protocol: HTTP
+    allowedRoutes:
+      kinds:
+      - kind: HTTPRoute
+      namespaces:
+        from: All
+  - name: https
+    port: 443
+    protocol: HTTPS
+    hostname: "*.<domain>"
+    tls:
+      mode: Terminate
+      certificateRefs:
+        - name: "<domain>-wildcard-tls"
+          kind: Secret
+    allowedRoutes:
+      kinds:
+      - kind: HTTPRoute
+      namespaces:
+        from: All
+  - name: tls-passthrough
+    port: 443
+    tls:
+      mode: Passthrough
+    protocol: TLS
+    allowedRoutes:
+      kinds:
+        - kind: TLSRoute
+      namespaces:
+        from: All

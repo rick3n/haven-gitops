@@ -19,19 +19,19 @@ spec:
 
 ---
 # ISTIO-GATEWAY
-# apiVersion: kustomize.toolkit.fluxcd.io/v1
-# kind: Kustomization
-# metadata:
-#   name: istio-gateway
-#   namespace: flux-system
-# spec:
-#   interval: 15m0s
-#   sourceRef:
-#     kind: GitRepository
-#     name: flux-system
-#   serviceAccountName: kustomize-controller
-#   path: ./infrastructure/istio-gateway/overlays/lab-clusters/cyso-pdv
-#   prune: true
-#   wait: true
-#   dependsOn:
-#     - name: istio
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: istio-gateway
+  namespace: flux-system
+spec:
+  interval: 15m0s
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  serviceAccountName: kustomize-controller
+  path: ./infrastructure/istio-gateway/overlays/lab-clusters/cyso-pdv
+  prune: true
+  wait: true
+  dependsOn:
+    - name: istio
