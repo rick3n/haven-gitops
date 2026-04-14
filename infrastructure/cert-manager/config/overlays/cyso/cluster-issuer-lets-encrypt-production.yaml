@@ -12,3 +12,7 @@ spec:
       - http01:
           ingress:
             ingressClassName: nginx
+      - dns01:
+          webhook:
+            groupName: acme.syseleven.de
+            solverName: designatedns

@@ -1,0 +1,7 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: designate-certmanager-webhook
+spec:
+  interval: 24h
+  url: oci://ghcr.io/stackitcloud/charts/designate-certmanager-webhook
