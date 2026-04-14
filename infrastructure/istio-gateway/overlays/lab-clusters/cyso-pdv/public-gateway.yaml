@@ -29,3 +29,17 @@ spec:
       - kind: HTTPRoute
       namespaces:
         from: All
+  - name: https
+    port: 443
+    protocol: HTTPS
+    hostname: "*.platform-dienstverlening.nl"
+    tls:
+      mode: Terminate
+      certificateRefs:
+        - name: "platform-dienstverlening-nl-wildcard-tls"
+          kind: Secret
+    allowedRoutes:
+      kinds:
+      - kind: HTTPRoute
+      namespaces:
+        from: All
