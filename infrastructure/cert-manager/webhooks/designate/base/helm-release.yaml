@@ -20,3 +20,10 @@ spec:
   values:
     replicaCount: 1
     credentialsSecret: cloud-credentials
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+      seccompProfile:
+        type: RuntimeDefault
