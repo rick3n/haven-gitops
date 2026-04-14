@@ -15,9 +15,8 @@ spec:
       name: RetryOnFailure
       retryInterval: 2m
   chartRef:
-    spec:
-      kind: OCIRepository
-      name: designate-certmanager-webhook
+    kind: OCIRepository
+    name: designate-certmanager-webhook
   values:
     replicaCount: 1
     credentialsSecret: cloud-credentials
