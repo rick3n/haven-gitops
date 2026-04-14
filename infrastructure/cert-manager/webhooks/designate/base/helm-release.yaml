@@ -14,14 +14,10 @@ spec:
     strategy: 
       name: RetryOnFailure
       retryInterval: 2m
-  chart:
+  chartRef:
     spec:
-      chart: designate-certmanager
-      version: 4.0.0
-      sourceRef:
-        kind: OCIRepository
-        name: designate-certmanager-webhook
-      interval: 12h
+      kind: OCIRepository
+      name: designate-certmanager-webhook
   values:
     replicaCount: 1
     credentialsSecret: cloud-credentials

@@ -5,3 +5,5 @@ metadata:
 spec:
   interval: 24h
   url: oci://ghcr.io/stackitcloud/charts/designate-certmanager-webhook
+  ref:
+    tag: 4.0.0
