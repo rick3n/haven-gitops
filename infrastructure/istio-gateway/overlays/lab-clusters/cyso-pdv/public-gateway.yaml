@@ -15,7 +15,7 @@ spec:
       - kind: HTTPRoute
       namespaces:
         from: All
-  - name: https
+  - name: https-fieldlab-pdv-nl
     port: 443
     protocol: HTTPS
     hostname: "*.fieldlab.platform-dienstverlening.nl"
@@ -29,7 +29,7 @@ spec:
       - kind: HTTPRoute
       namespaces:
         from: All
-  - name: https
+  - name: https-pdv-nl
     port: 443
     protocol: HTTPS
     hostname: "*.platform-dienstverlening.nl"
