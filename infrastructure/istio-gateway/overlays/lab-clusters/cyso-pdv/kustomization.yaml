@@ -4,5 +4,4 @@ namespace: istio-gateway
 resources:
   - ../../../base
   - public-gateway.yaml
-  - certificate.yaml
   # - fieldlab-egress-gateway.yaml
