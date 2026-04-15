@@ -10,7 +10,6 @@ resources:
   - falco.yaml
   - grafana.yaml
   - headlamp.yaml
-  - ingress-nginx.yaml
   - kyverno.yaml
   - loki.yaml
   - mimir.yaml

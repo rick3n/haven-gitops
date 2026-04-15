@@ -191,7 +191,7 @@ tasks:
       - echo -e "\n🚀🚀🚀 LOCAL HAVENPLUS PLATFORM IS UP AND RUNNING 🚀🚀🚀\n"
       - echo "👉  Run the command 'flux get all' to verify the status."
       - echo "👉  Run the command 'sudo cloud-provider-kind' to expose the Ingress (Service of type LoadBalancer)."
-      - echo "👉  Run the command 'kubectl get svc ingress-nginx-controller -n ingress-nginx -o jsonpath='{.status.loadBalancer.ingress[0].ip}'' to get the local IP address that cloud-provider-kind created."
+      - echo "👉  Run the command 'kubectl -n istio-gateway get svc public-gateway-istio -o jsonpath='{.status.loadBalancer.ingress[0].ip}'' to get the local IP address that cloud-provider-kind created."
       - echo "👉  Edit your /etc/hosts file to map the hostname of an application in your cluster to the local IP address."
     silent: true
 

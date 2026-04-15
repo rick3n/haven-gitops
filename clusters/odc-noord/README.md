@@ -11,9 +11,9 @@ kubectl apply -k .
 ODC-Noord provides Kubernetes clusters based on [Red Hat OpenShift](https://www.redhat.com/en/technologies/cloud-computing/openshift).
 OpenShift provides a set of components out-of-the-box that may overlap with the Haven+ components.
 
-### ingress-nginx
+### ingress
 
-OpenShift provides an ingress controller with IngressClass `openshift-default`. Therefore, we don't install Istio Gateway or ingress-nginx.
+OpenShift provides an ingress controller with IngressClass `openshift-default`. Therefore, we don't install Istio Gateway.
 
 ### keycloak
 
