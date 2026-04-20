@@ -1,0 +1,16 @@
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: TLSRoute
+metadata:
+  name: pinniped-concierge
+spec:
+  parentRefs:
+    - name: public-gateway
+      namespace: istio-gateway
+      sectionName: tls-passthrough
+  hostnames:
+    - "pinniped.<domain>"
+  rules:
+    - backendRefs:
+        - name: pinniped-concierge-impersonation-proxy-cluster-ip
+          kind: Service
+          port: 443

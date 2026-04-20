@@ -3,7 +3,8 @@ kind: Kustomization
 namespace: pinniped
 resources:
   - ../../base
-  - ingress-concierge.yaml
   - supervisor-certificate.yaml
+  - tlsroute-concierge.yaml
+  - tlsroute-supervisor.yaml
 patches:
   - path: patches/helm-release.yaml

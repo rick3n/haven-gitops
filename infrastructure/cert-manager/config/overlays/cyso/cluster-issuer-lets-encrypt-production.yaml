@@ -10,8 +10,11 @@ spec:
       name: letsencrypt-production-private-key
     solvers:
       - http01:
-          ingress:
-            ingressClassName: nginx
+          gatewayHTTPRoute:
+            parentRefs:
+              - name: public-gateway
+                namespace: istio-gateway
+                kind: Gateway
       - dns01:
           webhook:
             groupName: acme.syseleven.de
