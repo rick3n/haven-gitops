@@ -14,6 +14,7 @@ spec:
             namespaces: 
             - istio-system
             - tenant-fieldlab-nov2025
+            - nfs-server-provisioner
       disallow-host-namespaces:
         any:
         - resources:
