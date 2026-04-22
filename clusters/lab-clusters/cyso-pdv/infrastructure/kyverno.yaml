@@ -35,3 +35,22 @@ spec:
   dependsOn:
     - name: cluster-resources
     - name: kyverno-controller
+
+---
+# POLICIY-REPORTER
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: kyverno-policy-reporter
+  namespace: flux-system
+spec:
+  interval: 3m0s
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  serviceAccountName: kustomize-controller
+  path: ./infrastructure/kyverno/policy-reporter/overlays/lab-clusters/cyso-pdv
+  prune: true
+  wait: true
+  dependsOn:
+    - name: kyverno-policies
