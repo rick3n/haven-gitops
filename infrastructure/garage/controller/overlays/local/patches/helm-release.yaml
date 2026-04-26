@@ -6,5 +6,6 @@ spec:
   values:
     garage:
       replicationFactor: 1
+      dbEngine: "sqlite"
     deployment:
       replicaCount: 1
