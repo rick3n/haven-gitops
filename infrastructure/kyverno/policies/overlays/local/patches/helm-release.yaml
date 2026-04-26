@@ -11,7 +11,8 @@ spec:
       disallow-capabilities:
         any:
         - resources:
-            namespaces: []
+            namespaces: 
+            - istio-system
       disallow-host-namespaces:
         any:
         - resources:
