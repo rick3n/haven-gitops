@@ -5,5 +5,5 @@ metadata:
 spec:
   values:
     watchNamespaces:
-      - keycloak-instances
+      # - keycloak-instances
       - tenant-fieldlab-nov2025 # temporary for field lab
