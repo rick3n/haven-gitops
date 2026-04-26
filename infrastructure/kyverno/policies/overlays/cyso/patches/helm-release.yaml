@@ -11,7 +11,8 @@ spec:
       disallow-capabilities:
         any:
         - resources:
-            namespaces: []
+            - istio-system
+            - nfs-server-provisioner
       disallow-host-namespaces:
         any:
         - resources:
@@ -49,7 +50,8 @@ spec:
       restrict-apparmor-profiles:
         any:
         - resources:
-            namespaces: []
+            namespaces: 
+            - istio-system
       restrict-seccomp:
         any:
         - resources:

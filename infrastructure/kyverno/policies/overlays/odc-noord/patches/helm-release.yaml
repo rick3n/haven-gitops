@@ -16,6 +16,7 @@ spec:
             - openshift-*
             - quattro-*
             - tigera-operator
+            - istio-system
       disallow-host-namespaces:
         any:
         - resources:
@@ -83,6 +84,7 @@ spec:
             - openshift-*
             - quattro-*
             - tigera-operator
+            - istio-system
       restrict-seccomp:
         any:
         - resources:
