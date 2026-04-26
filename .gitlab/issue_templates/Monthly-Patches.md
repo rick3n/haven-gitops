@@ -1,10 +1,9 @@
-Once per month we update HavenPlus components, based on MR's that Renovate Bot created. These components are verified against a specific Kubernetes version. 
+Once per month we update HavenPlus components to new versions, based on MR's that Renovate Bot created. These components are verified against a specific Kubernetes version. 
 
 # Prep
 - Read release notes for all components for which [Renovate has openend an MR](https://gitlab.com/commonground/haven/havenplus/gitops-flux/-/merge_requests/?sort=created_date&state=opened&author_username=group_3094865_bot_11065d24d60249032aac86922bc492d6&first_page_size=20).
 
 # Actions
-
 - [ ] suspend infra kustomizations on lab-clusters, so we do not break anything on those clusters
 - [ ] merge renovate MR's to the `main` branch
 - [ ] verify changes on a local cluster (see verification list below)
@@ -12,6 +11,6 @@ Once per month we update HavenPlus components, based on MR's that Renovate Bot c
 - [ ] reconcile lab-clusters by resuming suspended Kustomizations
 
 # Verification list
-<fill in the list below with HavenPlus components which need to be validated. This should be done based on the MR's that Renovate provided>
+<fill in the list below with HavenPlus components which need to be validated. This should be done based on the MRs that Renovate provided>
 - [ ] ...
 - [ ] ...
