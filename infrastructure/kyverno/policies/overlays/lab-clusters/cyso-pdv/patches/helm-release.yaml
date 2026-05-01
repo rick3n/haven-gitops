@@ -94,6 +94,7 @@ spec:
         - resources:
             namespaces:
             - tenant-fieldlab-nov2025
+            - tenant-pdv # for nl-portal-frontend
             - istio-system
             - trivy-system
             - nfs-server-provisioner
@@ -104,6 +105,7 @@ spec:
         - resources:
             namespaces:
             - tenant-fieldlab-nov2025
+            - tenant-pdv # for nl-portal-frontend
             - istio-system
             - local-path-storage
             - trivy-system # trivy needs to be root in order to be able to scan filesystems
