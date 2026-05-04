@@ -1,0 +1,17 @@
+---
+apiVersion: notification.toolkit.fluxcd.io/v1
+kind: Receiver
+metadata:
+  name: tn-demo-gitlab
+  namespace: flux-system
+spec:
+  type: gitlab
+  events:
+    - "Push Hook"
+    - "Tag Push Hook"
+  secretRef:
+    name: tn-demo-webhook-token
+  resources:
+    - kind: GitRepository
+      name: tenant-demo
+      namespace: tenant-demo
