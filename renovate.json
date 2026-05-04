@@ -18,7 +18,9 @@
     {
       "customType": "regex",
       "description": "Updates container image versions in .image-versions file",
-      "fileMatch": ["\\.image-versions$"],
+      "managerFilePatterns": [
+        "/\\.image-versions$/"
+      ],
       "matchStrings": [
         "(?<depName>.*?):(?<currentValue>.*?)$"
       ],
