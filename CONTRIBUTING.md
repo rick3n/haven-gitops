@@ -49,8 +49,8 @@ Once ready, create a Merge Request targeting the upstream repository. Please ens
 2. Install required dependencies
 ```
 # in the root of this project:
-awk '{ system("asdf plugin add " $1) }' < .tool-versions
-asdf install
+mise trust
+mise install
 ```
 3. Copy `.env.example` to `.env` and add the URL of the fork you've just created. In Gitlab, this should be the URL under the `Code` button which states `Clone with HTTPS`.
 4. Bootstrap FluxCD on a local cluster based on your fork:
