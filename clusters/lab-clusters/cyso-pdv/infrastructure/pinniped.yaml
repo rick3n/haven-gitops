@@ -11,7 +11,7 @@ spec:
     name: flux-system
   serviceAccountName: kustomize-controller
   path: ./infrastructure/pinniped/controller/overlays/lab-clusters/cyso-pdv
-  prune: true
+  prune: false
   wait: true
   dependsOn:
     - name: cluster-resources
@@ -29,6 +29,6 @@ spec:
     name: flux-system
   serviceAccountName: kustomize-controller
   path: ./infrastructure/pinniped/config/overlays/lab-clusters/cyso-pdv
-  prune: true
+  prune: false
   dependsOn:
     - name: pinniped-controller

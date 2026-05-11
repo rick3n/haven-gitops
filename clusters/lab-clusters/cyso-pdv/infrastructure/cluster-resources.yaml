@@ -10,5 +10,5 @@ spec:
     name: flux-system
   serviceAccountName: kustomize-controller
   path: ./infrastructure/cluster-resources/overlays/lab-clusters/cyso-pdv
-  prune: true
+  prune: false
   wait: true

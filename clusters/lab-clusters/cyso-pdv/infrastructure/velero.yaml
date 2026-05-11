@@ -11,7 +11,7 @@ spec:
     name: flux-system
   serviceAccountName: kustomize-controller
   path: ./infrastructure/velero/controller/overlays/lab-clusters/cyso-pdv
-  prune: true
+  prune: false
   wait: true
   dependsOn:
     - name: cluster-resources
@@ -31,6 +31,6 @@ spec:
     name: flux-system
   serviceAccountName: kustomize-controller
   path: ./infrastructure/velero/config/overlays/lab-clusters/cyso-pdv
-  prune: true
+  prune: false
   dependsOn:
     - name: velero-controller

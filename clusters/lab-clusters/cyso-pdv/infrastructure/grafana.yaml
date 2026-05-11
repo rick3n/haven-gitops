@@ -11,7 +11,7 @@ spec:
     name: flux-system
   serviceAccountName: kustomize-controller
   path: ./infrastructure/grafana/controller/overlays/lab-clusters/cyso-pdv
-  prune: true
+  prune: false
   wait: true
   dependsOn:
     - name: cluster-resources
@@ -31,7 +31,7 @@ spec:
     name: flux-system
   serviceAccountName: kustomize-controller
   path: ./infrastructure/grafana/config/overlays/lab-clusters/cyso-pdv
-  prune: true
+  prune: false
   wait: true
   dependsOn:
     - name: cluster-resources

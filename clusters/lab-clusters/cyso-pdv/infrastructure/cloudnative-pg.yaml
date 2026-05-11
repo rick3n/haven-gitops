@@ -10,7 +10,7 @@ spec:
     name: flux-system
   serviceAccountName: kustomize-controller
   path: ./infrastructure/cloudnative-pg/overlays/lab-clusters/cyso-pdv
-  prune: true
+  prune: false
   wait: true
   dependsOn:
     - name: cluster-resources

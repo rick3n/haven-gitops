@@ -11,7 +11,7 @@ spec:
     name: flux-system
   serviceAccountName: kustomize-controller
   path: ./infrastructure/kyverno/controller/overlays/lab-clusters/cyso-pdv
-  prune: true
+  prune: false
   wait: true
   dependsOn:
     - name: cluster-resources
@@ -30,7 +30,7 @@ spec:
     name: flux-system
   serviceAccountName: kustomize-controller
   path: ./infrastructure/kyverno/policies/overlays/lab-clusters/cyso-pdv
-  prune: true
+  prune: false
   wait: true
   dependsOn:
     - name: cluster-resources
@@ -50,7 +50,7 @@ spec:
     name: flux-system
   serviceAccountName: kustomize-controller
   path: ./infrastructure/kyverno/policy-reporter/overlays/lab-clusters/cyso-pdv
-  prune: true
+  prune: false
   wait: true
   dependsOn:
     - name: kyverno-policies

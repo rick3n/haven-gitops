@@ -11,7 +11,7 @@ spec:
     name: flux-system
   serviceAccountName: kustomize-controller
   path: ./infrastructure/cert-manager/controller/overlays/lab-clusters/cyso-pdv
-  prune: true
+  prune: false
   wait: true
   dependsOn:
     - name: cluster-resources
@@ -31,7 +31,7 @@ spec:
     name: flux-system
   serviceAccountName: kustomize-controller
   path: ./infrastructure/cert-manager/config/overlays/lab-clusters/cyso-pdv
-  prune: true
+  prune: false
   dependsOn:
     - name: cert-manager-controller
 
@@ -49,6 +49,6 @@ spec:
     name: flux-system
   serviceAccountName: kustomize-controller
   path: ./infrastructure/cert-manager/webhooks/designate/overlays/lab-clusters/cyso-pdv
-  prune: true
+  prune: false
   dependsOn:
     - name: cert-manager-config

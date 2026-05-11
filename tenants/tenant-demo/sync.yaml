@@ -6,7 +6,7 @@ metadata:
 spec:
   interval: 1m0s
   path: ./local/
-  prune: false
+  prune: true
   serviceAccountName: tenant-demo
   sourceRef:
     kind: GitRepository
