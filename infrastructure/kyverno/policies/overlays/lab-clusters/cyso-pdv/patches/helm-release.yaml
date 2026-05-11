@@ -14,17 +14,20 @@ spec:
             namespaces: 
             - istio-system
             - tenant-fieldlab-nov2025
+            - tenant-pdv
             - nfs-server-provisioner
       disallow-host-namespaces:
         any:
         - resources:
             namespaces: 
             - tenant-fieldlab-nov2025
+            - tenant-pdv
       disallow-host-path:
         any:
         - resources:
             namespaces:
             - tenant-fieldlab-nov2025
+            - tenant-pdv
             - istio-system
             - falco
             - local-path-storage
@@ -77,6 +80,7 @@ spec:
         - resources:
             namespaces: 
             - tenant-fieldlab-nov2025
+            - tenant-pdv
             - istio-system
             - local-path-storage
             - nfs-server-provisioner # needs additional capabilities to function properly
@@ -86,6 +90,7 @@ spec:
         - resources:
             namespaces:
             - tenant-fieldlab-nov2025
+            - tenant-pdv
             - istio-system
             - local-path-storage
             - falco
