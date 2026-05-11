@@ -10,6 +10,11 @@ metadata:
     cert-manager.io/cluster-issuer: letsencrypt-production
 spec:
   gatewayClassName: istio
+  infrastructure:
+    parametersRef:
+      group: ""
+      kind: ConfigMap
+      name: public-gateway-config
   listeners:
   - name: http
     port: 80

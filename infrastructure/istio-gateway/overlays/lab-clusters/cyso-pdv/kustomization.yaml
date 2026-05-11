@@ -4,5 +4,6 @@ namespace: istio-gateway
 resources:
   - ../../../base
   - public-gateway.yaml
+  - public-gateway-config.yaml
   - hpa.yaml
   - redirect-http-https.yaml
