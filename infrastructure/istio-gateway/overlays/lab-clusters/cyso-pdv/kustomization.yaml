@@ -6,4 +6,3 @@ resources:
   - public-gateway.yaml
   - public-gateway-config.yaml
   - hpa.yaml
-  - redirect-http-https.yaml

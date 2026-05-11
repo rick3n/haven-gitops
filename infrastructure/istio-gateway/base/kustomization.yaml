@@ -3,3 +3,4 @@ kind: Kustomization
 namespace: set-in-overlay
 resources:
   - namespace.yaml
+  - http-to-https-redirect.yaml
