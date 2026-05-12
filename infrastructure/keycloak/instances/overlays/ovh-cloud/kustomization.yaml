@@ -4,3 +4,11 @@ namespace: keycloak-instances
 resources:
   - ../../base
 #  - sealed.yaml
+patches:
+  - target:
+      kind: KeycloakRealmImport
+      name: havenplus-realm-import
+    patch: |
+      - op: replace
+        path: /spec/realm/clients/1/redirectUris/0
+        value: "https://set-in-overlay/login/generic_oauth"

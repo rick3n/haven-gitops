@@ -8,10 +8,17 @@ patches:
   - target:
       kind: Keycloak
       name: keycloak
+    # hostname is set in URL form (not bare hostname) and backchannelDynamic
+    # is enabled so the `iss` claim stays canonical (http://keycloak.local)
+    # while in-cluster apps can reach the token/userinfo endpoints via the
+    # Kubernetes Service DNS without triggering an issuer mismatch.
     patch: |
       - op: replace
         path: /spec/hostname/hostname
-        value: keycloak.local
+        value: http://keycloak.local
+      - op: add
+        path: /spec/hostname/backchannelDynamic
+        value: true
   - target:
       kind: HTTPRoute
       name: keycloak
@@ -19,3 +26,10 @@ patches:
       - op: replace
         path: /spec/hostnames/0
         value: keycloak.local
+  - target:
+      kind: KeycloakRealmImport
+      name: havenplus-realm-import
+    patch: |
+      - op: replace
+        path: /spec/realm/clients/1/redirectUris/0
+        value: "http://grafana.local/login/generic_oauth"

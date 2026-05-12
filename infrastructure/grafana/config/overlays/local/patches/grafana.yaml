@@ -3,22 +3,40 @@ kind: Grafana
 metadata:
   name: grafana
 spec:
-  # Set-up simplest form of Grafana on local
   config:
     database:
       type: postgres
       name: grafana
       user: grafana
     server:
-      root_url: "http://grafana.havenplus.local"
-    analytics:
-      reporting_enabled: "false"
+      root_url: "http://grafana.local"
     security:
+      # admin/admin kept as fallback when Keycloak is down on a dev Kind cluster.
       admin_user: admin
       admin_password: admin
-    auth: ~
-    users: ~
-    auth.generic_oauth: ~
+      # HTTP-only on local: Secure cookies and the __Host- prefix can't work.
+      cookie_secure: "false"
+      # Override base's "strict" — on local, grafana.local and keycloak.local
+      # are distinct sites, so the OIDC return-trip from Keycloak is a
+      # cross-site top-level navigation. SameSite=Strict blocks the state
+      # cookie on that return, breaking the flow. On real clusters both live
+      # under one TLD, so the base's "strict" is correct there.
+      cookie_samesite: "lax"
+    auth:
+      login_cookie_name: "grafana_session"
+    auth.generic_oauth:
+      # auth_url is browser-facing (resolved via /etc/hosts to the Kind gateway).
+      # token_url and api_url are back-channel — Grafana pod calls them
+      # directly via the in-cluster Service DNS so traffic stays inside the
+      # cluster. Keycloak's hostname-v2 + backchannelDynamic keeps `iss`
+      # canonical (http://keycloak.local) regardless of which URL hits the
+      # token endpoint.
+      auth_url:  "http://keycloak.local/realms/havenplus/protocol/openid-connect/auth"
+      token_url: "http://keycloak-service.keycloak-instances:8080/realms/havenplus/protocol/openid-connect/token"
+      api_url:   "http://keycloak-service.keycloak-instances:8080/realms/havenplus/protocol/openid-connect/userinfo"
+  httpRoute:
+    spec:
+      hostnames: [ grafana.local ]
   deployment:
     spec:
       template:

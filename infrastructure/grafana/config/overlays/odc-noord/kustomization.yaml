@@ -7,3 +7,12 @@ resources:
 patches:
   - path: patches/grafana.yaml
   - path: patches/cnpg.yaml
+  # odc-noord uses OpenShift Route + OpenShift-provided Keycloak; the base
+  # httpRoute targets Istio public-gateway which doesn't exist here. SSO on
+  # this cluster is intentionally out of scope.
+  - target:
+      kind: Grafana
+      name: grafana
+    patch: |
+      - op: remove
+        path: /spec/httpRoute

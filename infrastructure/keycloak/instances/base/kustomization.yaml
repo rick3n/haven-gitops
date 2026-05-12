@@ -5,4 +5,4 @@ resources:
   - httproute.yaml
   - keycloak.yaml
   - namespace.yaml
-  - pinniped-client.yaml
+  - realm.yaml

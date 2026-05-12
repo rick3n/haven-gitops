@@ -1,0 +1,57 @@
+apiVersion: k8s.keycloak.org/v2alpha1
+kind: KeycloakRealmImport
+metadata:
+  name: havenplus-realm-import
+spec:
+  keycloakCRName: keycloak
+  realm:
+    realm: havenplus
+    enabled: true
+    groups:
+      - { name: k8s-admins,     path: /k8s-admins }
+      - { name: k8s-developers, path: /k8s-developers }
+    # NOTE: overlay JSON patches index into `clients` by position.
+    # Do not reorder; append new clients to the end.
+    #
+    # The `groups` protocol mapper is kept inline on each client (rather than
+    # lifted into a shared realm-level clientScope) because Keycloak's realm
+    # import treats `clientScopes:` as the COMPLETE list — defining it would
+    # replace Keycloak's default scopes (email/profile/roles/...) instead of
+    # merging with them, breaking standard OIDC scope requests.
+    clients:
+      - clientId: pinniped-cli
+        name: Pinniped CLI
+        publicClient: true
+        standardFlowEnabled: true
+        directAccessGrantsEnabled: true
+        redirectUris: [ "http://127.0.0.1:*", "http://localhost:*" ]
+        webOrigins:   [ "*" ]
+        defaultClientScopes: [ email ]
+        protocolMappers:
+          - name: groups
+            protocol: openid-connect
+            protocolMapper: oidc-group-membership-mapper
+            config:
+              full.path: "false"
+              claim.name: groups
+              id.token.claim: "true"
+              access.token.claim: "true"
+              userinfo.token.claim: "true"
+      - clientId: grafana
+        name: Grafana
+        publicClient: true
+        standardFlowEnabled: true
+        attributes:
+          pkce.code.challenge.method: "S256"
+        redirectUris: [ "set-in-overlay" ]   # https://<grafana-host>/login/generic_oauth
+        defaultClientScopes: [ email, profile ]
+        protocolMappers:
+          - name: groups
+            protocol: openid-connect
+            protocolMapper: oidc-group-membership-mapper
+            config:
+              full.path: "false"
+              claim.name: groups
+              id.token.claim: "true"
+              access.token.claim: "true"
+              userinfo.token.claim: "true"

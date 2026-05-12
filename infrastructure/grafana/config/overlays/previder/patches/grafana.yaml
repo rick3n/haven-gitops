@@ -3,22 +3,20 @@ kind: Grafana
 metadata:
   name: grafana
 spec:
-  # Set-up simplest form of Grafana on local
   config:
     database:
       type: postgres
       name: grafana
       user: grafana
     server:
-      root_url: "http://grafana.havenplus.local"
-    analytics:
-      reporting_enabled: "false"
-    security:
-      admin_user: admin
-      admin_password: admin
-    auth: ~
-    users: ~
-    auth.generic_oauth: ~
+      root_url: "https://set-in-overlay"
+    auth.generic_oauth:
+      auth_url:  "https://set-in-overlay/realms/havenplus/protocol/openid-connect/auth"
+      token_url: "https://set-in-overlay/realms/havenplus/protocol/openid-connect/token"
+      api_url:   "https://set-in-overlay/realms/havenplus/protocol/openid-connect/userinfo"
+  httpRoute:
+    spec:
+      hostnames: [ set-in-overlay ]
   deployment:
     spec:
       template:

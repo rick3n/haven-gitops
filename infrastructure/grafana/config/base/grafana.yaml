@@ -7,13 +7,11 @@ metadata:
 spec:
   config:
     server:
-      root_url: "<override>"
+      root_url: "set-in-overlay"
       enable_gzip: "true"
-    # database:
     analytics:
       reporting_enabled: "false"
     security:
-      disable_initial_admin_creation: "false"
       cookie_secure: "true"
       cookie_samesite: "strict"
       content_security_policy: "true"
@@ -23,12 +21,24 @@ spec:
       allow_sign_up: "false"
       viewers_can_edit: "true"
     auth.generic_oauth:
-      api_url:  "<override>"
-      token_url: "<override>"
-      auth_url: "<override>"
       enabled: "true"
       name: "Keycloak"
-      scopes: "openid,email,profile"
-      role_attribute_path: "contains(groups[*], 'admin') && 'GrafanaAdmin' || 'Viewer'"
-      allow_assign_grafana_admin: "true"
+      client_id: "grafana"
+      use_pkce: "true"
+      scopes: "openid email profile"
+      auth_url:  "https://set-in-overlay/realms/havenplus/protocol/openid-connect/auth"
+      token_url: "https://set-in-overlay/realms/havenplus/protocol/openid-connect/token"
+      api_url:   "https://set-in-overlay/realms/havenplus/protocol/openid-connect/userinfo"
       groups_attribute_path: "groups"
+      allow_assign_grafana_admin: "true"
+      role_attribute_path: >-
+        contains(groups[*], 'k8s-admins') && 'GrafanaAdmin' ||
+        contains(groups[*], 'k8s-developers') && 'Editor' || 'Viewer'
+  httpRoute:
+    spec:
+      parentRefs:
+        - { name: public-gateway, namespace: istio-gateway }
+      hostnames: [ set-in-overlay ]
+      rules:
+        - backendRefs:
+            - { name: grafana-service, port: 3000 }
