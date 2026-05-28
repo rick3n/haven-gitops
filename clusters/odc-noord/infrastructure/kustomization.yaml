@@ -4,6 +4,7 @@ resources:
   - alloy.yaml
   - cert-manager.yaml
   - cloudnative-pg.yaml
+  - cnpg-plugin-barman-cloud.yaml
   - cluster-resources.yaml
   - eck-operator.yaml
   - external-secrets.yaml
