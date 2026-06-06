@@ -41,6 +41,45 @@ chmod +x .git/hooks/commit-msg
 ```
 
 
+# Coding Standards
+
+These conventions keep the GitOps tree predictable and Renovate-friendly. CI validates manifests with `./scripts/validate.sh`; run it before opening an MR. Make sure your editor respects the repo's `.editorconfig` (LF line endings, UTF-8, final newline, 2-space indent for YAML).
+
+## Kustomize layout
+- Every component uses a `base/` + `overlays/<cluster>/` layout. The `base/` holds environment-agnostic config; overlays apply per-cluster changes.
+- Do not set `metadata.namespace` in a resource. Set `namespace:` in the overlay's `kustomization.yaml` instead.
+- Pin Helm chart versions in `base/` only (`spec.chart.spec.version`).
+- Use built-in transformers (`images:`, `replicas:`, `labels:`, `namespace:`) before reaching for `patches:`.
+- For labels use the `labels:` field with `pairs:`. By default `pairs:` only decorates `metadata.labels`; add `includeSelectors: true` when the label must also become the workload selector.
+- As a rule of thumb: if fewer than 3 patches are needed from an overlay to the base, use inline JSON 6902 patches in `kustomization.yaml`; otherwise use a strategic-merge patch file under a `patches/` subdirectory next to the `kustomization.yaml` that references it.
+- Use the literal string `set-in-overlay` for base fields whose real value belongs in an overlay.
+
+## Flux resources
+- Cluster-level Flux `Kustomization`s live in `clusters/<cluster>/infrastructure/<component>.yaml`, point at `./infrastructure/<component>/.../overlays/<cluster>`, and set `prune: true` and `wait: true`.
+- Split a component into `controller` and `config` Kustomizations when config must reconcile after the operator/CRDs are ready; express the order with `dependsOn`.
+- Reconcile against the `flux-system` `GitRepository` with `serviceAccountName: kustomize-controller`.
+- Reconciliation intervals follow the repo convention: `HelmRelease` `spec.interval: 30m`, `HelmRepository`/`GitRepository` sources longer (e.g. `24h` / `1h`). Don't set short intervals to "speed things up" — push a commit or trigger the `Receiver` instead.
+
+## Drift detection & retries
+- `prune: true` with `wait: true` lets the kustomize-controller continuously detect and correct drift back to Git state:
+  ```yaml
+  spec:
+    prune: true
+    wait: true
+  ```
+- Set `spec.driftDetection.mode` on each `HelmRelease` in its `base/`. Use `enabled` by default; use `disabled` only when a controller legitimately mutates its own resources at runtime (e.g. cert-manager).
+- Let Flux recover from transient failures on its own. The standard pattern for HelmReleases is the Flux 2.8 retry strategy in `base/`:
+  ```yaml
+  install:
+    strategy:
+      name: RetryOnFailure
+      retryInterval: 2m
+  upgrade:
+    strategy:
+      name: RetryOnFailure
+      retryInterval: 2m
+  ```
+
 # Submitting a Merge Request
 Once ready, create a Merge Request targeting the upstream repository. Please ensure that the MR description and/or your commit message includes a [reference](https://docs.gitlab.com/user/project/issues/crosslinking_issues/) to the relevant GitLab issue that your MR resolves.
 
