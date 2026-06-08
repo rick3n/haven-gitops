@@ -28,7 +28,7 @@ spec:
     kind: GitRepository
     name: flux-system
   serviceAccountName: kustomize-controller
-  path: ./infrastructure/pinniped/config/overlays/gitlab
+  path: ./infrastructure/pinniped/config/overlays/azure
   prune: true
   dependsOn:
     - name: pinniped-controller

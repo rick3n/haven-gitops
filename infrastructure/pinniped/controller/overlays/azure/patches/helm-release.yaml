@@ -11,8 +11,3 @@ spec:
           externalEndpoint: "pinniped.<domain>:443"
           service:
             type: ClusterIP
-    supervisor:
-      enabled: true
-      service:
-        public:
-          type: ClusterIP

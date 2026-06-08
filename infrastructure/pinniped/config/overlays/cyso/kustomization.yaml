@@ -3,6 +3,5 @@ kind: Kustomization
 namespace: pinniped
 resources:
   - ../../base
-  - federation-domain.yaml
 patches:
   - path: patches/jwt-authenticator.yaml

@@ -4,7 +4,5 @@ namespace: pinniped
 resources:
   - ../../base
   - tlsroute-concierge.yaml
-  - tlsroute-supervisor.yaml
-  - supervisor-certificate.yaml
 patches:
   - path: patches/helm-release.yaml

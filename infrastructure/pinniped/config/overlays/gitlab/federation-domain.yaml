@@ -1,8 +1,0 @@
-apiVersion: config.supervisor.pinniped.dev/v1alpha1
-kind: FederationDomain
-metadata:
-  name: supervisor
-spec:
-  issuer: "https://pinniped-supervisor.<domain>"
-  tls:
-    secretName: pinniped-supervisor-tls
