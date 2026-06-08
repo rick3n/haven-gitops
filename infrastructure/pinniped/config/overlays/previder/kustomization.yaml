@@ -3,5 +3,6 @@ kind: Kustomization
 namespace: pinniped
 resources:
   - ../../base
+  - clusterrolebinding.yaml
 patches:
   - path: patches/jwt-authenticator.yaml

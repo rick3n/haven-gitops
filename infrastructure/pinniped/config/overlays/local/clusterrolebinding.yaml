@@ -1,0 +1,28 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: pinniped-admin-users
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  # Grant cluster-admin to users in the "k8s-admins" Keycloak group
+  - apiGroup: rbac.authorization.k8s.io
+    kind: Group
+    name: "k8s-admins"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: pinniped-developers
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: edit
+subjects:
+  # Grant edit access to users in the "k8s-developers" Keycloak group
+  - apiGroup: rbac.authorization.k8s.io
+    kind: Group
+    name: "k8s-developers"

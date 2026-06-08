@@ -7,7 +7,4 @@ spec:
     concierge:
       credentialIssuerConfig: |
         impersonationProxy:
-          mode: enabled
-          externalEndpoint: example-cluster.mydomain.io:443
-          service:
-            type: ClusterIP
+          mode: disabled
