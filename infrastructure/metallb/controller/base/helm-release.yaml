@@ -15,7 +15,7 @@ spec:
   chart:
     spec:
       chart: metallb
-      version: 0.15.3  # see https://github.com/metallb/metallb/releases
+      version: 0.16.1  # see https://github.com/metallb/metallb/releases
       sourceRef:
         kind: HelmRepository
         name: metallb
