@@ -111,3 +111,7 @@ spec:
       enabledNonEnterprise: true
     tokengenJob:
       enable: false
+    kafka:
+      persistence:
+        size: 10Gi
+      logRetentionHours: 2
