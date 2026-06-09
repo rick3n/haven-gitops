@@ -17,7 +17,7 @@ spec:
   chart:
     spec:
       chart: cloudnative-pg
-      version: 0.26.1  # see https://artifacthub.io/packages/helm/cloudnative-pg/cloudnative-pg
+      version: 0.28.2  # see https://artifacthub.io/packages/helm/cloudnative-pg/cloudnative-pg
       sourceRef:
         kind: HelmRepository
         name: cloudnative-pg
