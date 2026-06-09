@@ -17,7 +17,7 @@ spec:
   chart:
     spec:
       chart: external-dns
-      version: 1.19.0  # see https://artifacthub.io/packages/helm/external-dns/external-dns
+      version: 1.21.1  # see https://artifacthub.io/packages/helm/external-dns/external-dns
       sourceRef:
         kind: HelmRepository
         name: external-dns
