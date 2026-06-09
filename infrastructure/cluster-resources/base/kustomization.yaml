@@ -6,7 +6,7 @@ resources:
   - ./network-policies
   # experimental-install required for now required for Gateway-API TLSRoute support
   - https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.4.1/experimental-install.yaml
-  - https://download.elastic.co/downloads/eck/2.15.0/crds.yaml
+  - https://download.elastic.co/downloads/eck/3.4.0/crds.yaml
   # Prometheus-Operator CRDs
   - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.81.0/example/prometheus-operator-crd/monitoring.coreos.com_podmonitors.yaml
   - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.81.0/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml
