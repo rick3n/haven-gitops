@@ -69,6 +69,7 @@ spec:
             - local-path-storage
             - nfs-server-provisioner # needs additional capabilities to function properly
             - falco
+            - velero
       disallow-privilege-escalation:
         any:
         - resources:
@@ -76,6 +77,7 @@ spec:
             - istio-system
             - local-path-storage
             - falco
+            - velero
       require-run-as-non-root-user:
         any:
         - resources:
@@ -102,6 +104,7 @@ spec:
             - istio-gateway # Gateway API lacks seccomp profile configuration, but a mutating admission could enable it later
             - local-path-storage
             - falco
+            - velero
         - resources:
             selector:
               matchLabels:

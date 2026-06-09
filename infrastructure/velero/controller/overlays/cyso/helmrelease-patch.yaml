@@ -7,7 +7,6 @@ spec:
     spec:
       version: "10.0.5"
   values:
-    deployNodeAgent: false
     initContainers:
       - name: velero-plugin-for-aws
         image: velero/velero-plugin-for-aws:v1.11.1

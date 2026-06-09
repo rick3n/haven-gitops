@@ -23,6 +23,16 @@ spec:
         name: velero
       interval: 12h
   values:
+    extraVolumes:
+    - emptyDir: {}
+      name: udmrepo
+    - emptyDir: {}
+      name: cache
+    extraVolumeMounts:
+    - mountPath: /udmrepo
+      name: udmrepo
+    - mountPath: /.cache
+      name: cache
     upgradeCRDs: true
     metrics:
       serviceMonitor:

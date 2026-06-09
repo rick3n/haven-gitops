@@ -33,7 +33,6 @@ spec:
       uploaderType: "kopia"
       defaultVolumesToFsBackup: true
       defaultBackupStorageLocation: "garage"
-      deployNodeAgent: true
       snapshotsEnabled: false
       logLevel: "warning"
       backupStorageLocation: 
