@@ -3,6 +3,17 @@ kind: Kustomization
 resources:
   - gotk-components.yaml
   - sync.yaml
+patches:
+  - patch: |
+      - op: add
+        path: /spec/template/spec/containers/0/args/-
+        value: --concurrent=10
+      - op: add
+        path: /spec/template/spec/containers/0/args/-
+        value: --requeue-dependency=5s      
+    target:
+      kind: Deployment
+      name: "(kustomize-controller|helm-controller|source-controller)"
 # Multi-Tenancy is disabled for now, as it requires a bit more work to get it functional.
 # patches:
 #   - patch: |
