@@ -43,6 +43,7 @@ quay.io/jetstack/cert-manager-startupapicheck:v1.19.2
 quay.io/jetstack/cert-manager-webhook:v1.19.2
 quay.io/keycloak/keycloak-operator:26.4.7
 quay.io/keycloak/keycloak:26.4.7
+quay.io/oauth2-proxy/oauth2-proxy:v7.15.3
 quay.io/prometheus-operator/prometheus-config-reloader:v0.81.0
 reg.kyverno.io/kyverno/background-controller:v1.17.2
 reg.kyverno.io/kyverno/cleanup-controller:v1.17.2

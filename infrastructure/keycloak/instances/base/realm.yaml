@@ -55,3 +55,19 @@ spec:
               id.token.claim: "true"
               access.token.claim: "true"
               userinfo.token.claim: "true"
+      - clientId: opencost
+        name: OpenCost
+        publicClient: false
+        standardFlowEnabled: true
+        redirectUris: [ "set-in-overlay" ]   # https://<opencost-host>/oauth2/callback
+        defaultClientScopes: [ email, profile ]
+        protocolMappers:
+          - name: groups
+            protocol: openid-connect
+            protocolMapper: oidc-group-membership-mapper
+            config:
+              full.path: "false"
+              claim.name: groups
+              id.token.claim: "true"
+              access.token.claim: "true"
+              userinfo.token.claim: "true"

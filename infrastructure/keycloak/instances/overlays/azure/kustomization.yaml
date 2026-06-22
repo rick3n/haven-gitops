@@ -12,3 +12,10 @@ patches:
       - op: replace
         path: /spec/realm/clients/1/redirectUris/0
         value: "https://set-in-overlay/login/generic_oauth"
+  - target:
+      kind: KeycloakRealmImport
+      name: havenplus-realm-import
+    patch: |
+      - op: replace
+        path: /spec/realm/clients/2/redirectUris/0
+        value: "https://set-in-overlay/oauth2/callback"

@@ -1,0 +1,15 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: opencost
+spec:
+  parentRefs:
+    - name: public-gateway
+      namespace: istio-gateway
+  hostnames:
+    - set-in-overlay
+  rules:
+    - backendRefs:
+        # Route to the oauth2-proxy port, not the UI (9090) directly.
+        - name: opencost
+          port: 4180

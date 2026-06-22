@@ -45,3 +45,23 @@ spec:
           memory: 256Mi
         limits:
           memory: 1Gi
+      # Satisfy the cluster's kyverno PodSecurity policies (drop all caps, no
+      # privilege escalation); the chart ships no container securityContext.
+      containerSecurityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+    configmapReload:
+      prometheus:
+        containerSecurityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault

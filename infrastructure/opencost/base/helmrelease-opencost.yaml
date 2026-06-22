@@ -31,7 +31,62 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/port: "9003"
         prometheus.io/path: "/metrics"
+      # The HTTPRoute sends gateway traffic to the oauth2-proxy port, not the UI (9090).
+      extraPorts:
+        - name: oauth-proxy
+          port: 4180
+          targetPort: oauth-proxy
+          protocol: TCP
+    # fsGroup so the exporter (running as non-root) can write the persistence PVC.
+    podSecurityContext:
+      fsGroup: 1000
     opencost:
+      # oauth2-proxy sidecar (must live under opencost.extraContainers — that is the
+      # path the chart templates). Proxies the UI; gateway traffic hits :4180.
+      extraContainers:
+        - name: oauth-proxy
+          image: quay.io/oauth2-proxy/oauth2-proxy:v7.15.3
+          args:
+            - --http-address=0.0.0.0:4180
+            - --upstream=http://127.0.0.1:9090
+            - --provider=oidc
+            - --client-id=opencost
+            - --email-domain=*
+            - --reverse-proxy=true
+            - --skip-provider-button=true
+            # Set scope explicitly: oauth2-proxy auto-appends a "groups" scope when
+            # --allowed-group is set, but this realm has no "groups" client scope
+            # (groups come via an inline client mapper), so Keycloak rejects it as
+            # invalid_scope. An explicit scope overrides the default+append; the
+            # groups claim is still in the token, so --allowed-group still works.
+            - --scope=openid email profile
+            # Bare group name (no leading slash): the realm's group mapper uses
+            # full.path=false, so the token's groups claim is "k8s-admins", not
+            # "/k8s-admins". oauth2-proxy does an exact match.
+            - --allowed-group=k8s-admins
+          envFrom:
+            - configMapRef:
+                name: opencost-oauth2-proxy-config
+            - secretRef:
+                name: opencost-oauth2-proxy
+          ports:
+            - name: oauth-proxy
+              containerPort: 4180
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault
       # Query the dedicated in-namespace Prometheus, never the shared Mimir/LGTM stack.
       prometheus:
         internal:
@@ -42,8 +97,30 @@ spec:
       exporter:
         persistence:
           enabled: true
+          accessMode: ReadWriteOnce
           size: 1Gi
+        # Satisfy the cluster's kyverno PodSecurity policies.
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          runAsNonRoot: true
+          runAsUser: 1000
+          seccompProfile:
+            type: RuntimeDefault
       # On-prem default pricing; no cloud billing-API key. See docs for enabling a cloud
       # rate card per provider later.
       ui:
         enabled: true
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          runAsNonRoot: true
+          # The opencost-ui image owns /var/www as uid 1001 and rewrites assets at
+          # startup; it must run as that uid or the startup sed fails with EACCES.
+          runAsUser: 1001
+          seccompProfile:
+            type: RuntimeDefault

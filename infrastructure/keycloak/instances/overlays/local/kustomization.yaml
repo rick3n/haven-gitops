@@ -33,3 +33,16 @@ patches:
       - op: replace
         path: /spec/realm/clients/1/redirectUris/0
         value: "http://grafana.local/login/generic_oauth"
+  - target:
+      kind: KeycloakRealmImport
+      name: havenplus-realm-import
+    patch: |
+      - op: replace
+        path: /spec/realm/clients/2/redirectUris/0
+        value: "http://opencost.local/oauth2/callback"
+      # Pin the confidential opencost client secret for local so oauth2-proxy can use a
+      # committed (sealed) value. Local's sealing key is itself committed, so there is no
+      # real secrecy to protect here - this is a dev-only convenience.
+      - op: add
+        path: /spec/realm/clients/2/secret
+        value: "opencost-local-dev-secret"

@@ -7,3 +7,4 @@ resources:
   - helmrepository-prometheus.yaml
   - helmrelease-prometheus.yaml
   - helmrelease-opencost.yaml
+  - httproute.yaml
