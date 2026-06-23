@@ -20,6 +20,7 @@ resources:
   - metallb.yaml
   - mimir.yaml
   - nfs-subdir-external-provisioner.yaml
+  - opencost.yaml
   - pinniped.yaml
   - sealed-secrets.yaml
   - tempo.yaml

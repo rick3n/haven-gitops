@@ -14,6 +14,7 @@ resources:
   - kyverno.yaml
   - loki.yaml
   - mimir.yaml
+  - opencost.yaml
   - sealed-secrets.yaml
   - tempo.yaml
   - trivy-operator.yaml

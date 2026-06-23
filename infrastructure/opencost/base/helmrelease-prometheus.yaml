@@ -1,0 +1,47 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: prometheus
+spec:
+  interval: 30m
+  driftDetection:
+    mode: enabled
+  install:
+    strategy:
+      name: RetryOnFailure
+      retryInterval: 2m
+  upgrade:
+    strategy:
+      name: RetryOnFailure
+      retryInterval: 2m
+  chart:
+    spec:
+      chart: prometheus
+      version: "29.12.0"
+      sourceRef:
+        kind: HelmRepository
+        name: prometheus-community
+      interval: 12h
+  values:
+    # Server only: OpenCost just needs a PromQL store, not alerting/gateways/node metrics.
+    alertmanager:
+      enabled: false
+    prometheus-pushgateway:
+      enabled: false
+    prometheus-node-exporter:
+      enabled: false
+    # Bundled so clusters without a cluster-wide KSM (e.g. odc-noord) still work, and so
+    # OpenCost is fully decoupled from the LGTM pipeline. prometheusScrape annotates the
+    # KSM service so the default kubernetes-service-endpoints job discovers it.
+    kube-state-metrics:
+      enabled: true
+    server:
+      retention: "7d"
+      persistentVolume:
+        enabled: false
+      resources:
+        requests:
+          cpu: 50m
+          memory: 256Mi
+        limits:
+          memory: 1Gi

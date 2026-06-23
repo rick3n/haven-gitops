@@ -1,0 +1,49 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: opencost
+spec:
+  interval: 30m
+  driftDetection:
+    mode: enabled
+  install:
+    strategy:
+      name: RetryOnFailure
+      retryInterval: 2m
+  upgrade:
+    strategy:
+      name: RetryOnFailure
+      retryInterval: 2m
+  chart:
+    spec:
+      chart: opencost
+      version: "2.5.23"
+      sourceRef:
+        kind: HelmRepository
+        name: opencost
+      interval: 12h
+  # see https://github.com/opencost/opencost-helm-chart/blob/main/charts/opencost/values.yaml
+  values:
+    # Expose OpenCost's own /metrics (cost-model apiPort 9003) for the dedicated Prometheus
+    # to scrape via annotation discovery (its default kubernetes-service-endpoints job).
+    service:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9003"
+        prometheus.io/path: "/metrics"
+    opencost:
+      # Query the dedicated in-namespace Prometheus, never the shared Mimir/LGTM stack.
+      prometheus:
+        internal:
+          enabled: true
+          serviceName: prometheus-server
+          namespaceName: opencost
+          port: 80
+      exporter:
+        persistence:
+          enabled: true
+          size: 1Gi
+      # On-prem default pricing; no cloud billing-API key. See docs for enabling a cloud
+      # rate card per provider later.
+      ui:
+        enabled: true
