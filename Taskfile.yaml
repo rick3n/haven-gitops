@@ -139,7 +139,8 @@ tasks:
       - |
         flux create source git flux-system \
           --url={{.GITLAB_REPO_URL}} \
-          --branch={{.GITLAB_REPO_BRANCH}}
+          --branch={{.GITLAB_REPO_BRANCH}} \
+          --export | kubectl apply -f -
       - echo "✅  Connected FluxCD to repository '{{.GITLAB_REPO_URL}}'"
     silent: true
 
@@ -150,7 +151,8 @@ tasks:
         flux create kustomization flux-system \
           --source=GitRepository/flux-system \
           --path=clusters/local/flux-system \
-          --prune=true
+          --prune=true \
+          --export | kubectl apply -f -
       - echo "✅  Created FluxCD bootstrap configuration!"
       - echo "👉  HavenPlus workloads will now be deployed to the local Kind cluster."
     silent: true
