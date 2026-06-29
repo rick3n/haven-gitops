@@ -32,8 +32,8 @@ spec:
       groups_attribute_path: "groups"
       allow_assign_grafana_admin: "true"
       role_attribute_path: >-
-        contains(groups[*], 'k8s-admins') && 'GrafanaAdmin' ||
-        contains(groups[*], 'k8s-developers') && 'Editor' || 'Viewer'
+        contains(join(',', groups), 'k8s-admins') && 'GrafanaAdmin' ||
+        contains(join(',', groups), 'k8s-developers') && 'Editor' || 'Viewer'
   httpRoute:
     spec:
       parentRefs:
