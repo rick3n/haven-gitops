@@ -115,11 +115,18 @@ tasks:
     silent: true
 
   load-images-in-kind:
-    desc: "Create and start a local Kubernetes cluster with Kind."
+    desc: "Load all locally-present container images into the Kind cluster in one batch."
     internal: true
     cmds:
       - echo "🛠️  Loading container images into Kind cluster - this can take a while!"
-      - for i in `cat .image-versions`; do kind load docker-image $i --name gitops-fluxcd; done
+      - |
+        # Load only images that are present locally: `kind load` errors on a missing
+        # image and would abort the whole batch. A single invocation is far faster than
+        # one-per-image, and kind skips images already on the node, so re-runs are cheap.
+        images=$(for i in $(cat .image-versions); do docker image inspect "$i" >/dev/null 2>&1 && echo "$i"; done)
+        if [ -n "$images" ]; then
+          kind load docker-image $images --name {{.KIND_CLUSTER_NAME}}
+        fi
       - echo "✅  All container images have been loaded into the Kind cluster."
     silent: true
 
