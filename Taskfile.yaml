@@ -97,8 +97,12 @@ tasks:
   create-kind-cluster:
     desc: "Create and start a local Kubernetes cluster with Kind."
     internal: true
-    cmds: 
+    cmds:
       - |
+        if kind get clusters 2>/dev/null | grep -qx "{{.KIND_CLUSTER_NAME}}"; then
+          echo "ℹ️  Kind cluster '{{.KIND_CLUSTER_NAME}}' already exists - reusing it."
+          exit 0
+        fi
         kind create cluster --config=- <<EOF
         kind: Cluster
         apiVersion: kind.x-k8s.io/v1alpha4
@@ -107,7 +111,7 @@ tasks:
           - role: control-plane
             image: kindest/node:v{{.KIND_VERSION}}
         EOF
-      - echo "✅  Local Kind cluster created successfully!"
+        echo "✅  Local Kind cluster created successfully!"
     silent: true
 
   load-images-in-kind:
