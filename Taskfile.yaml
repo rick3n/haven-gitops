@@ -63,34 +63,25 @@ tasks:
         fi
 
         echo "🛠️  Pulling all required container images locally - this can take a while!"
-        max_retries=3
-        retry_delay=5  # seconds
-        failed_images_file="logs/failed_image_pulls.log"
         mkdir -p logs
+        export failed_images_file="logs/failed_image_pulls.log"
 
         # Clear the log file at the start
         echo "The following images have been failed to pull. This might slow down and / or break the start-up of the HavenPlus stack!" > "$failed_images_file"
 
-        for image in $(cat .image-versions); do
-          retry_count=0
-          success=false
-
-          while [ $retry_count -lt $max_retries ]; do
-            if docker pull "$image"; then
-              success=true
-              break
-            else
-              retry_count=$((retry_count + 1))
-              echo "Failed to pull $image (attempt $retry_count/$max_retries). Retrying in $retry_delay seconds..."
-              sleep $retry_delay
-            fi
+        # Pull up to 8 images in parallel; skip images already present locally so
+        # re-runs are fast. Each image retries up to 3 times before being logged.
+        cat .image-versions | xargs -P 8 -I{} bash -c '
+          img="$1"
+          docker image inspect "$img" >/dev/null 2>&1 && exit 0
+          for attempt in 1 2 3; do
+            docker pull "$img" && exit 0
+            echo "Failed to pull $img (attempt $attempt/3). Retrying in 5s..."
+            sleep 5
           done
-
-          if ! $success; then
-            echo "Failed to pull $image after $max_retries attempts. Logging to $failed_images_file."
-            echo "$image" >> "$failed_images_file"
-          fi
-        done
+          echo "Failed to pull $img after 3 attempts. Logging to $failed_images_file."
+          echo "$img" >> "$failed_images_file"
+        ' _ {}
         echo "✅  All container images have been pulled locally."
     silent: true
 
