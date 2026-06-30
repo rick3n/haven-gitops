@@ -12,7 +12,7 @@ patches:
       name: opencost
     patch: |
       - op: remove
-        path: /spec/values/extraContainers
+        path: /spec/values/opencost/extraContainers
       - op: remove
         path: /spec/values/service/extraPorts
   - target:
