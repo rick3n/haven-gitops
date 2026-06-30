@@ -33,7 +33,7 @@ tasks:
           🚨 kubectl is not installed! Use 'mise' to install it (see README for details)
       - sh: command -v cloud-provider-kind
         msg: |
-          🚨 cloud-provider-kind is not installed! See https://github.com/kubernetes-sigs/cloud-provider-kind?tab=readme-ov-file#install for installation instructions
+          🚨 cloud-provider-kind is not installed! Use 'mise' to install it (see README for details)
     cmds:
       - echo -e "✅  All preconditions have been met."
     silent: true

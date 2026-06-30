@@ -1,4 +1,5 @@
 [tools]
+"aqua:kubernetes-sigs/cloud-provider-kind" = "0.11.1"
 flux2 = "2.8.8"
 kind = "0.32.0"
 kubectl = "1.34.6"
