@@ -48,7 +48,6 @@ tasks:
       - task: install-fluxcd
       - task: deploy-flux-gitsource
       - task: deploy-flux-bootstrap-kustomization
-      - task: boost-reconcilitions
       - task: watch-kustomizations
       - task: output-success-message
 
@@ -175,17 +174,6 @@ tasks:
           fi
         done
       - echo "✅  All Kustomizations are ready!"
-    silent: true
-  
-  boost-reconcilitions:
-    desc: "Boost reconcilitions of all Kustomizations to speed up local deployment."
-    cmds:
-      - echo "🚀  Boosting reconcilitions of Kustomizations, please stand-by..."
-      - |
-        for kustomization in cluster-resources kyverno-controller kyverno-policies cloudnative-pg sealed-secrets ; do
-          echo "  🔄  Reconciling Kustomization: $kustomization"
-          flux reconcile kustomization $kustomization >/dev/null 2>&1
-        done
     silent: true
 
   output-success-message:
