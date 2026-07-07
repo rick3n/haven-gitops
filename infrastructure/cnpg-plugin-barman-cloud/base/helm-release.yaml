@@ -7,7 +7,7 @@ spec:
   chart:
     spec:
       chart: plugin-barman-cloud
-      version: 0.6.0  # see https://artifacthub.io/packages/helm/cloudnative-pg/plugin-barman-cloud
+      version: 0.7.0  # see https://artifacthub.io/packages/helm/cloudnative-pg/plugin-barman-cloud
       sourceRef:
         kind: HelmRepository
         name: cnpg
