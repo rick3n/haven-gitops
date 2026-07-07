@@ -12,13 +12,14 @@ spec:
       name: RetryOnFailure
       retryInterval: 2m
   upgrade:
+    crds: CreateReplace
     strategy: 
       name: RetryOnFailure
       retryInterval: 2m
   chart:
     spec:
       chart: keycloak-operator
-      version: "1.0.20260613001759" # see https://gitlab.com/kubitus-project/external-helm-charts/keycloak-operator/-/packages
+      version: "1.0.20260627000905" # see https://gitlab.com/kubitus-project/external-helm-charts/keycloak-operator/-/packages
       sourceRef:
         kind: HelmRepository
         name: keycloak-operator
