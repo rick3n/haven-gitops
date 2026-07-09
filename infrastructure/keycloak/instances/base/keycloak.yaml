@@ -9,6 +9,9 @@ spec:
       # needs to be configured, otherwise the operator defaults are used which are too high for Kind
       memory: 1Mi
       cpu: 1m
+  tracing:
+    enabled: true
+    endpoint: http://alloy.alloy:4317
   additionalOptions:
   - name: spi-login-protocol-openid-connect-legacy-logout-redirect-uri
     value: "true"
