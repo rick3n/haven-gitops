@@ -1,0 +1,19 @@
+# PLACEHOLDER SealedSecret — providers must reseal their own object-storage
+# credentials against their cluster cert:
+#   kubeseal --format yaml < secret.yaml > sealed.yaml
+# (A real SealedSecret is cluster-bound and cannot be decrypted elsewhere.)
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: s3-credentials
+  namespace: velero
+spec:
+  encryptedData:
+    cloud: AgB-REPLACE-WITH-KUBESEAL-OUTPUT
+  template:
+    metadata:
+      creationTimestamp: null
+      name: s3-credentials
+      namespace: velero
