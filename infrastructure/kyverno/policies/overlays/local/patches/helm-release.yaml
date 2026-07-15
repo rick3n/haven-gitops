@@ -3,9 +3,6 @@ kind: HelmRelease
 metadata:
   name: kyverno-policies
 spec:
-  chart:
-    spec:
-      version: "3.4.4"
   values:
     policyExclude:
       disallow-capabilities:
