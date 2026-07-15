@@ -7,4 +7,5 @@ resources:
 - git-repository.yaml
 - rbac.yaml
 - sync.yaml
+- example-secret.yaml
 namespace: tenant-demo

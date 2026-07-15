@@ -20,6 +20,7 @@ resources:
   - loki.yaml
   - mimir.yaml
   - nfs-server-provisioner.yaml
+  - openbao.yaml
   - opencost.yaml
   - sealed-secrets.yaml
   - tempo.yaml
