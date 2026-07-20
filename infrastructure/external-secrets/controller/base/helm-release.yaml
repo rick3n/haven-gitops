@@ -17,7 +17,7 @@ spec:
   chart:
     spec:
       chart: external-secrets
-      version: 2.7.0  # see https://github.com/external-secrets/external-secrets/releases
+      version: 2.8.0  # see https://github.com/external-secrets/external-secrets/releases
       sourceRef:
         kind: HelmRepository
         name: external-secrets
