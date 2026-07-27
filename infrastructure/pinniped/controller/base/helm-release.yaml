@@ -30,6 +30,6 @@ spec:
       registry: ghcr.io
       repository: vmware/pinniped/pinniped-server
       tag: v0.47.0 # see https://github.com/vmware/pinniped/releases
-      digest: "sha256:140294862f6c83f9e242c58bbaf54f15d768666030cc451344897f221a605c9a"
+      digest: "sha256:3a46e1ea8b874281698dd27e60d6f9b46738cb10483baa9dc78a0023cc17e29d"
     supervisor:
       enabled: false
