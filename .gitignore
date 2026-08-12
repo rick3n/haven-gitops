@@ -25,3 +25,7 @@ secret.yaml
 secrets.yaml
 logs
 .vscode
+
+# exclude specific AI agents
+# we stay agnostic with AGENTS.md, to which specific agent MD's can refer to via e.g. symlinks
+CLAUDE.md
