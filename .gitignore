@@ -21,6 +21,7 @@ bin/
 .env
 .envrc
 
-secret*
+secret.yaml
+secrets.yaml
 logs
 .vscode
