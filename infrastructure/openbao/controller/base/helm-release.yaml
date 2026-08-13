@@ -22,4 +22,12 @@ spec:
         kind: HelmRepository
         name: openbao
       interval: 12h
-  values: {}
+  values:
+    server:
+      statefulSet:
+        securityContext:
+          container:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL

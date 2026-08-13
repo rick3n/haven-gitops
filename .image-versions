@@ -43,7 +43,7 @@ quay.io/jetstack/cert-manager-webhook:v1.21.0
 quay.io/keycloak/keycloak-operator:26.7.0
 quay.io/keycloak/keycloak:26.7.0
 quay.io/oauth2-proxy/oauth2-proxy:v7.15.3
-quay.io/openbao/openbao:2.5.5
+quay.io/openbao/openbao:2.6.1
 quay.io/prometheus-operator/prometheus-config-reloader:v0.81.0
 quay.io/prometheus-operator/prometheus-config-reloader:v0.92.1
 quay.io/prometheus/prometheus:v3.13.1

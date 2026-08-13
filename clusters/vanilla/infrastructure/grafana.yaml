@@ -1,8 +1,8 @@
-# OPENBAO
+# CONTROLLER
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: openbao
+  name: grafana-controller
   namespace: flux-system
 spec:
   interval: 15m0s
@@ -10,7 +10,7 @@ spec:
     kind: GitRepository
     name: flux-system
   serviceAccountName: kustomize-controller
-  path: ./infrastructure/openbao/controller/overlays/local
+  path: ./infrastructure/grafana/controller/overlays/vanilla
   prune: true
   wait: true
   dependsOn:
@@ -18,11 +18,11 @@ spec:
     - name: kyverno-policies
 
 ---
-# AUTH CONFIG (kubernetes auth for per-tenant SecretStores)
+# CONFIG
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: openbao-config-auth
+  name: grafana-config
   namespace: flux-system
 spec:
   interval: 15m0s
@@ -30,10 +30,10 @@ spec:
     kind: GitRepository
     name: flux-system
   serviceAccountName: kustomize-controller
-  path: ./infrastructure/openbao/config/overlays/auth/local
+  path: ./infrastructure/grafana/config/overlays/vanilla
   prune: true
   wait: true
   dependsOn:
-    - name: openbao
     - name: cluster-resources
-    - name: kyverno-policies
+    - name: grafana-controller
+    - name: cloudnative-pg

@@ -1,0 +1,45 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: openbao
+spec:
+  values:
+    server:
+      ha:
+        enabled: true
+        replicas: 3
+        raft:
+          enabled: true
+          config: |
+            ui = true
+
+            listener "tcp" {
+              tls_disable = 1
+              address = "[::]:8200"
+              cluster_address = "[::]:8201"
+            }
+
+            storage "raft" {
+              path = "/openbao/data"
+
+              retry_join {
+                leader_api_addr = "http://openbao-0.openbao-internal:8200"
+              }
+              retry_join {
+                leader_api_addr = "http://openbao-1.openbao-internal:8200"
+              }
+              retry_join {
+                leader_api_addr = "http://openbao-2.openbao-internal:8200"
+              }
+            }
+
+            seal "static" {
+              current_key_id = "1"
+              current_key    = "env://BAO_SEAL_STATIC_KEY"
+            }
+
+            service_registration "kubernetes" {}
+      extraSecretEnvironmentVars:
+        - envName: BAO_SEAL_STATIC_KEY
+          secretName: openbao-static-seal-key
+          secretKey: key

@@ -1,8 +1,7 @@
-# OPENBAO
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: openbao
+  name: keycloak-operator
   namespace: flux-system
 spec:
   interval: 15m0s
@@ -10,19 +9,20 @@ spec:
     kind: GitRepository
     name: flux-system
   serviceAccountName: kustomize-controller
-  path: ./infrastructure/openbao/controller/overlays/local
+  path: ./infrastructure/keycloak/operator/overlays/vanilla
   prune: true
   wait: true
   dependsOn:
     - name: cluster-resources
+    - name: cloudnative-pg
+    - name: sealed-secrets
     - name: kyverno-policies
 
 ---
-# AUTH CONFIG (kubernetes auth for per-tenant SecretStores)
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: openbao-config-auth
+  name: keycloak-instances
   namespace: flux-system
 spec:
   interval: 15m0s
@@ -30,10 +30,8 @@ spec:
     kind: GitRepository
     name: flux-system
   serviceAccountName: kustomize-controller
-  path: ./infrastructure/openbao/config/overlays/auth/local
+  path: ./infrastructure/keycloak/instances/overlays/vanilla
   prune: true
   wait: true
   dependsOn:
-    - name: openbao
-    - name: cluster-resources
-    - name: kyverno-policies
+    - name: keycloak-operator

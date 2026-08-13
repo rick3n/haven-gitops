@@ -1,8 +1,8 @@
-# OPENBAO
+# ISTIO
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: openbao
+  name: istio
   namespace: flux-system
 spec:
   interval: 15m0s
@@ -10,7 +10,7 @@ spec:
     kind: GitRepository
     name: flux-system
   serviceAccountName: kustomize-controller
-  path: ./infrastructure/openbao/controller/overlays/local
+  path: ./infrastructure/istio/overlays/vanilla
   prune: true
   wait: true
   dependsOn:
@@ -18,11 +18,11 @@ spec:
     - name: kyverno-policies
 
 ---
-# AUTH CONFIG (kubernetes auth for per-tenant SecretStores)
+# ISTIO-GATEWAY
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: openbao-config-auth
+  name: istio-gateway
   namespace: flux-system
 spec:
   interval: 15m0s
@@ -30,10 +30,8 @@ spec:
     kind: GitRepository
     name: flux-system
   serviceAccountName: kustomize-controller
-  path: ./infrastructure/openbao/config/overlays/auth/local
+  path: ./infrastructure/istio-gateway/overlays/vanilla
   prune: true
   wait: true
   dependsOn:
-    - name: openbao
-    - name: cluster-resources
-    - name: kyverno-policies
+    - name: istio

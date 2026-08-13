@@ -16,6 +16,11 @@
       "/\\.yaml$/"
     ]
   },
+  "kubernetes": {
+    "managerFilePatterns": [
+      "/^infrastructure/openbao/config/base/(init|auth)/job\\.yaml$/"
+    ]
+  },
   "customManagers": [
     {
       "customType": "regex",

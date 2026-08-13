@@ -1,28 +1,8 @@
-# OPENBAO
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: openbao
-  namespace: flux-system
-spec:
-  interval: 15m0s
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  serviceAccountName: kustomize-controller
-  path: ./infrastructure/openbao/controller/overlays/local
-  prune: true
-  wait: true
-  dependsOn:
-    - name: cluster-resources
-    - name: kyverno-policies
-
 ---
-# AUTH CONFIG (kubernetes auth for per-tenant SecretStores)
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: openbao-config-auth
+  name: pinniped-controller
   namespace: flux-system
 spec:
   interval: 15m0s
@@ -30,10 +10,26 @@ spec:
     kind: GitRepository
     name: flux-system
   serviceAccountName: kustomize-controller
-  path: ./infrastructure/openbao/config/overlays/auth/local
+  path: ./infrastructure/pinniped/controller/overlays/vanilla
   prune: true
   wait: true
   dependsOn:
-    - name: openbao
     - name: cluster-resources
     - name: kyverno-policies
+    
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: pinniped-config
+  namespace: flux-system
+spec:
+  interval: 15m0s
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  serviceAccountName: kustomize-controller
+  path: ./infrastructure/pinniped/config/overlays/vanilla
+  prune: true
+  dependsOn:
+    - name: pinniped-controller

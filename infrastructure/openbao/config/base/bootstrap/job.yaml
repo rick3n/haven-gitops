@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: openbao-seal-key
+spec:
+  template:
+    spec:
+      serviceAccountName: openbao-seal-key
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: seal-key-bootstrap
+          image: bitnamilegacy/kubectl:1.33.4
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -eu
+              NAME=openbao-static-seal-key
+              if kubectl get secret "$NAME" >/dev/null 2>&1; then
+                echo "$NAME already exists, nothing to do"
+                exit 0
+              fi
+              KEY=$(head -c 32 /dev/urandom | base64)
+              kubectl create secret generic "$NAME" --from-literal=key="${KEY}"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+      restartPolicy: Never
+  backoffLimit: 1

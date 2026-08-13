@@ -1,0 +1,54 @@
+# CONTROLLER
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cert-manager-controller
+  namespace: flux-system
+spec:
+  interval: 15m0s
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  serviceAccountName: kustomize-controller
+  path: ./infrastructure/cert-manager/controller/overlays/vanilla
+  prune: true
+  wait: true
+  dependsOn:
+    - name: cluster-resources
+    - name: kyverno-policies
+
+---
+# CONFIG
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cert-manager-config
+  namespace: flux-system
+spec:
+  interval: 15m0s
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  serviceAccountName: kustomize-controller
+  path: ./infrastructure/cert-manager/config/overlays/vanilla
+  prune: true
+  dependsOn:
+    - name: cert-manager-controller
+
+---
+# WEBHOOK-DESIGNATE
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cert-manager-webhook-designate
+  namespace: flux-system
+spec:
+  interval: 15m0s
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  serviceAccountName: kustomize-controller
+  path: ./infrastructure/cert-manager/webhooks/designate/overlays/vanilla
+  prune: true
+  dependsOn:
+    - name: cert-manager-config

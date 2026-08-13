@@ -1,0 +1,84 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: openbao-init
+spec:
+  template:
+    spec:
+      serviceAccountName: openbao-init
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 100
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        - name: init
+          image: quay.io/openbao/openbao:2.6.1
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -eu
+              export BAO_ADDR="http://openbao-0.openbao-internal:8200"
+
+              echo "waiting for openbao-0 to be reachable..."
+              i=0
+              while [ "$i" -lt 60 ]; do
+                bao status >/tmp/status.out 2>&1 && break
+                # "Initialized" only appears in a genuine status response; its
+                # absence means we never actually reached the server (DNS/connection
+                # error) rather than getting a real sealed/uninitialized status back
+                # -- bao status exits 2 for BOTH cases, so the exit code alone can't
+                # tell them apart.
+                grep -q "Initialized" /tmp/status.out && break
+                i=$((i + 1))
+                sleep 5
+              done
+              cat /tmp/status.out || true
+
+              if grep -q "Initialized.*true" /tmp/status.out; then
+                echo "openbao already initialized"
+                exit 0
+              fi
+
+              bao operator init -format=json -recovery-shares=1 -recovery-threshold=1 > /shared/init.json
+              echo "init complete"
+          volumeMounts:
+            - name: shared
+              mountPath: /shared
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+      containers:
+        - name: store-credentials
+          image: bitnamilegacy/kubectl:1.33.4
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -eu
+              trap 'rm -f /shared/init.json' EXIT
+              NAME=openbao-init-credentials
+              if kubectl get secret "$NAME" >/dev/null 2>&1; then
+                echo "$NAME already exists, nothing to do"
+                exit 0
+              fi
+              if [ ! -s /shared/init.json ]; then
+                echo "no init output to store (already initialized), nothing to do"
+                exit 0
+              fi
+              kubectl create secret generic "$NAME" --from-file=init.json=/shared/init.json
+          volumeMounts:
+            - name: shared
+              mountPath: /shared
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+      volumes:
+        - name: shared
+          emptyDir:
+            medium: Memory
+      restartPolicy: Never
+  backoffLimit: 1

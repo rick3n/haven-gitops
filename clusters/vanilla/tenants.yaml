@@ -13,6 +13,5 @@ spec:
   prune: true
   dependsOn:
     - name: kyverno-policies
-    - name: flux-webhook-receiver
-    - name: external-secrets-controller
+    - name: external-secrets
     - name: openbao-config-auth

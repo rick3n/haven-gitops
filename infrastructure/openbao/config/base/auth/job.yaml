@@ -1,0 +1,88 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: openbao-auth-config
+spec:
+  template:
+    spec:
+      serviceAccountName: openbao-auth-config
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 100
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: auth-config
+          image: quay.io/openbao/openbao:2.6.1
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -eu
+              export BAO_ADDR="http://openbao-0.openbao-internal:8200"
+
+              echo "waiting for openbao-0 to be reachable..."
+              i=0
+              while [ "$i" -lt 60 ]; do
+                bao status >/tmp/status.out 2>&1 && break
+                # "Initialized" only appears in a genuine status response; its
+                # absence means we never actually reached the server (DNS/connection
+                # error) rather than getting a real sealed/uninitialized status back
+                # -- bao status exits 2 for BOTH cases, so the exit code alone can't
+                # tell them apart.
+                grep -q "Initialized" /tmp/status.out && break
+                i=$((i + 1))
+                sleep 5
+              done
+              cat /tmp/status.out || true
+
+              if [ -s /creds/init.json ]; then
+                # openbao-init-credentials exists: a real init stage ran (an HA
+                # overlay), read the root token it generated
+                ROOT_TOKEN=$(sed -n 's/.*"root_token"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' /creds/init.json)
+                [ -n "$ROOT_TOKEN" ] || { echo "could not extract root_token from /creds/init.json"; exit 1; }
+              else
+                # no init stage ran (dev mode auto-inits/unseals with no init Job at
+                # all) -- the init-creds volume is mounted `optional: true` and is
+                # empty here, so fall back to the chart's known fixed dev root token
+                # (server.dev.devRootToken default)
+                ROOT_TOKEN="root"
+              fi
+              export BAO_TOKEN="$ROOT_TOKEN"
+
+              bao secrets list | grep -q '^secret/'     || bao secrets enable -path=secret kv-v2
+              bao auth list    | grep -q '^kubernetes/' || bao auth enable kubernetes
+
+              # token_reviewer_jwt/kubernetes_ca_cert deliberately omitted: openbao's own
+              # pod auto-loads them from its mounted service account token/CA (authDelegator
+              # already grants it TokenReview via the openbao-helm chart default)
+              bao write auth/kubernetes/config kubernetes_host="https://kubernetes.default.svc"
+
+              # --- tenant-demo ---
+              printf 'path "secret/data/tenant-demo/*" {\n  capabilities = ["read", "list"]\n}\npath "secret/metadata/tenant-demo/*" {\n  capabilities = ["read", "list"]\n}\n' | bao policy write tenant-demo-read -
+
+              bao write auth/kubernetes/role/tenant-demo \
+                bound_service_account_names=tenant-demo-auth \
+                bound_service_account_namespaces=tenant-demo \
+                token_policies=tenant-demo-read \
+                token_ttl=15m token_max_ttl=1h
+              # --- add new tenants above this line ---
+
+              echo "auth-config complete"
+          volumeMounts:
+            - name: init-creds
+              mountPath: /creds
+              readOnly: true
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+      volumes:
+        - name: init-creds
+          secret:
+            secretName: openbao-init-credentials
+            optional: true
+      restartPolicy: Never
+  backoffLimit: 1
