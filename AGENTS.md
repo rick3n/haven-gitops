@@ -14,7 +14,9 @@ For details regarding kustomize layout and flux resources and other behavior, se
 
 ### Renovate
 
-`renovate.json` drives automatic version bumps: the `flux` manager scans all `.yaml` files for chart/source versions, and a custom regex manager bumps entries in `.image-versions` (the list `task run-local` uses to pre-pull/pre-load images into Kind). Patch updates are disabled. Most `chore(deps)` commits in history are Renovate-authored — follow their existing message format when bumping versions by hand.
+`renovate.json` drives automatic version bumps: the `flux` manager scans all `.yaml` files for chart/source versions, and custom regex managers bump entries in `.image-versions` (the list `task run-local` uses to pre-pull/pre-load images into Kind) and the digest-pinned Pinniped image. Patch updates are disabled.
+
+The `flux` manager derives images from `HelmRelease` values via `helm-values`, which has no notion of a `digest` field — it would bump `tag` and leave `digest` stale. Digest-pinned images therefore need a custom regex manager capturing `currentValue` **and** `currentDigest` in a single `matchStrings` entry, plus a `packageRules` entry disabling the `flux` manager's `docker` deps for that file so the two managers do not rewrite the same lines. See the Pinniped entries in `renovate.json` when adding another digest-pinned image. Most `chore(deps)` commits in history are Renovate-authored — follow their existing message format when bumping versions by hand.
 
 
 ## Commands

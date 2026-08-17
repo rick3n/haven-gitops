@@ -9,6 +9,13 @@
     {
       "matchUpdateTypes": ["patch"],
       "enabled": false
+    },
+    {
+      "description": "The Pinniped image is digest-pinned, which the flux/helm-values manager cannot express. The pinniped-image custom manager owns it instead, so both managers do not fight over the same lines.",
+      "matchManagers": ["flux"],
+      "matchDatasources": ["docker"],
+      "matchFileNames": ["infrastructure/pinniped/controller/base/helm-release.yaml"],
+      "enabled": false
     }
   ],
   "flux": {
@@ -31,6 +38,19 @@
       "matchStrings": [
         "(?<depName>.*?):(?<currentValue>.*?)$"
       ],
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "Updates the digest-pinned Pinniped image, keeping tag and digest in sync",
+      "managerFilePatterns": [
+        "/^infrastructure/pinniped/controller/base/helm-release\\.yaml$/"
+      ],
+      "matchStrings": [
+        "registry: (?<registry>\\S+)\\s+repository: (?<repository>\\S+)\\s+tag: (?<currentValue>\\S+)[^\\n]*\\s+digest: \"?(?<currentDigest>sha256:[a-f0-9]+)\"?"
+      ],
+      "depNameTemplate": "{{{registry}}}/{{{repository}}}",
       "datasourceTemplate": "docker",
       "versioningTemplate": "docker"
     }
