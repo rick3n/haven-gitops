@@ -13,7 +13,7 @@ kustomize:
       done
 
 commitlint:
-  image: node:24.18.0
+  image: node:24.20.0
   stage: test
   variables:
     GIT_DEPTH: '0'
