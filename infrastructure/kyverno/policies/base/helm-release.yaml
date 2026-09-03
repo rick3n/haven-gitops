@@ -23,4 +23,5 @@ spec:
   values:
     validationFailureAction: Enforce
     podSecurityStandard: "restricted"
+    policyType: ClusterPolicy
     policyExclude: {} # add relevant policy excludes in the concerning overlay
