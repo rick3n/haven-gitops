@@ -3,7 +3,7 @@ version: '3'
 dotenv: ['.env']
 
 vars:
-  KIND_VERSION: 1.34.8
+  KIND_VERSION: 1.35.8
   KIND_CLUSTER_NAME: '{{default "gitops-fluxcd" .KIND_CLUSTER_NAME}}'
   GITLAB_REPO_URL: '{{default "https://gitlab.com/commonground/haven/havenplus/gitops-flux.git" .GITLAB_REPO_URL}}'
   GITLAB_REPO_BRANCH: '{{default "main" .GITLAB_REPO_BRANCH}}'
