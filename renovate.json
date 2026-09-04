@@ -16,6 +16,14 @@
       "matchDatasources": ["docker"],
       "matchFileNames": ["infrastructure/pinniped/controller/base/helm-release.yaml"],
       "enabled": false
+    },
+    {
+      "description": "Keycloak publishes no official operator chart, so we track the kubitus rebuilds. Their versions are 1.0.<build timestamp> (the operator version lives in appVersion), so every release reads as a patch bump and the repo-wide patch opt-out above hides all of them. Drop this rule once we move to the official chart at oci://quay.io/keycloak/keycloak-operator-helm, which is versioned with the operator itself.",
+      "matchManagers": ["flux"],
+      "matchDatasources": ["helm"],
+      "matchPackageNames": ["keycloak-operator"],
+      "matchUpdateTypes": ["patch"],
+      "enabled": true
     }
   ],
   "flux": {

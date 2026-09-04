@@ -18,6 +18,16 @@ For details regarding kustomize layout and flux resources and other behavior, se
 
 The `flux` manager derives images from `HelmRelease` values via `helm-values`, which has no notion of a `digest` field — it would bump `tag` and leave `digest` stale. Digest-pinned images therefore need a custom regex manager capturing `currentValue` **and** `currentDigest` in a single `matchStrings` entry, plus a `packageRules` entry disabling the `flux` manager's `docker` deps for that file so the two managers do not rewrite the same lines. See the Pinniped entries in `renovate.json` when adding another digest-pinned image. Most `chore(deps)` commits in history are Renovate-authored — follow their existing message format when bumping versions by hand.
 
+The repo-wide patch opt-out silently swallows dependencies whose upstream does not use semver — a `packageRules` entry has to opt them back in. The `keycloak-operator` chart is the example: no official chart exists, so we track the kubitus rebuilds, which are versioned `1.0.<build timestamp>` with the operator version in `appVersion`, making every release a "patch". Before assuming Renovate cannot see a dependency, check whether it is being filtered out as one.
+
+To check what Renovate would do without pushing anything, run it against the working tree (needs Node 24; Renovate rejects newer):
+
+```bash
+mise x node@24.18.1 -- env LOG_LEVEL=debug RENOVATE_PLATFORM=local RENOVATE_DRY_RUN=full npx --yes renovate@latest
+```
+
+Grep the output for `flattened updates found` (the deps that would get an MR) and `Filtered out N disabled update(s)`.
+
 
 ## Commands
 
