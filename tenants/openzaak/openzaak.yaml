@@ -56,7 +56,7 @@ spec:
         resources:
           requests: { cpu: 10m, memory: 64Mi }
     settings:
-      allowedHosts: "openzaak.haven.3n.nl,openzaak-nginx,localhost"
+      allowedHosts: "openzaak.haven.3n.nl,openzaak-nginx,openzaak-nginx.openzaak.svc,localhost"
       siteDomain: openzaak.haven.3n.nl
       isHttps: true
       numProxies: 2                 # Istio-gateway + nginx
@@ -67,12 +67,13 @@ spec:
         username: openzaak
         name: openzaak
         sslmode: prefer
-      # Notificaties pas aanzetten als Open Notificaties gekoppeld is (stap 2).
-      notificationsDisabled: true
+      notificationsDisabled: false
       otel:
         disabled: false
         exporterOtlpEndpoint: http://alloy.alloy:4317
         exporterOtlpMetricsInsecure: true
+    # Secrets voor de koppeling (koppeling.sops.yaml) komen als env in de config-job.
+    existingConfigurationSecrets: openzaak-config-secrets
     configuration:
       enabled: true
       overwrite: true
@@ -83,6 +84,62 @@ spec:
           items:
             - domain: openzaak.haven.3n.nl
               name: Open Zaak — Haven-lab 3n.nl
+        # Open Notificaties in-cluster (http): de gateway-cert komt van haven-ca en
+        # die zit niet in de container-truststore. Publieke URL's blijven https.
+        zgw_consumers_config_enable: true
+        zgw_consumers:
+          services:
+            - identifier: notifications-api
+              label: Notificaties API (Open Notificaties, Haven-lab)
+              api_root: http://opennotificaties.openzaak.svc/api/v1/
+              api_connection_check_path: notificaties
+              api_type: nrc
+              auth_type: zgw
+              client_id: openzaak
+              secret:
+                value_from:
+                  env: secret_openzaak
+              user_id: openzaak
+              user_representation: Open Zaak
+            - identifier: selectielijst-api
+              label: Selectielijst API (VNG)
+              api_root: https://selectielijst.openzaak.nl/api/v1/
+              api_type: orc
+              auth_type: no_auth
+        notifications_config_enable: true
+        notifications_config:
+          notifications_api_service_identifier: notifications-api
+          notification_delivery_max_retries: 3
+          notification_delivery_retry_backoff: 2
+          notification_delivery_retry_backoff_max: 10
+        openzaak_selectielijst_config_enable: true
+        openzaak_selectielijst_config:
+          selectielijst_api_service_identifier: selectielijst-api
+          allowed_years: [ 2020, 2017 ]
+          default_year: 2020
+        # Applicaties die Open Zaak mogen bevragen (Autorisaties API):
+        vng_api_common_applicaties_config_enable: true
+        vng_api_common_applicaties:
+          items:
+            - uuid: 0b7f0a3e-5c51-4a3e-9b7e-7a4e6b1b3a01
+              client_ids: [ opennotificaties ]
+              label: Open Notificaties
+              heeft_alle_autorisaties: true
+            - uuid: 0b7f0a3e-5c51-4a3e-9b7e-7a4e6b1b3a02
+              client_ids: [ openzaak ]
+              label: Open Zaak (zelf, voor notificaties)
+              heeft_alle_autorisaties: true
+        vng_api_common_credentials_config_enable: true
+        vng_api_common_credentials:
+          items:
+            - identifier: opennotificaties
+              secret:
+                value_from:
+                  env: secret_opennotificaties
+            - identifier: openzaak
+              secret:
+                value_from:
+                  env: secret_openzaak
     global:
       configuration: { enabled: true }
 ---

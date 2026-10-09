@@ -45,7 +45,7 @@ spec:
         resources:
           requests: { cpu: 10m, memory: 64Mi }
     settings:
-      allowedHosts: "opennotificaties.haven.3n.nl,opennotificaties-nginx,localhost"
+      allowedHosts: "opennotificaties.haven.3n.nl,opennotificaties,opennotificaties.openzaak.svc,localhost"
       siteDomain: opennotificaties.haven.3n.nl
       isHttps: true
       numProxies: 1               # geen nginx in deze chart; alleen de Istio-gateway
@@ -56,6 +56,7 @@ spec:
         username: opennotificaties
         name: opennotificaties
         sslmode: prefer
+    existingConfigurationSecrets: opennotificaties-config-secrets
     configuration:
       enabled: true
       overwrite: true
@@ -66,6 +67,44 @@ spec:
           items:
             - domain: opennotificaties.haven.3n.nl
               name: Open Notificaties — Haven-lab 3n.nl
+        zgw_consumers_config_enable: true
+        zgw_consumers:
+          services:
+            - identifier: autorisaties-api
+              label: Autorisaties API (Open Zaak, Haven-lab)
+              api_root: http://openzaak-nginx.openzaak.svc/autorisaties/api/v1/
+              api_type: ac
+              auth_type: zgw
+              client_id: opennotificaties
+              secret:
+                value_from:
+                  env: secret_opennotificaties
+              user_id: opennotificaties
+              user_representation: Open Notificaties
+        autorisaties_api_config_enable: true
+        autorisaties_api:
+          authorizations_api_service_identifier: autorisaties-api
+        vng_api_common_credentials_config_enable: true
+        vng_api_common_credentials:
+          items:
+            - identifier: openzaak
+              secret:
+                value_from:
+                  env: secret_openzaak
+            - identifier: opennotificaties
+              secret:
+                value_from:
+                  env: secret_opennotificaties
+        notifications_kanalen_config_enable: true
+        notifications_kanalen_config:
+          items:
+            - { naam: autorisaties, documentatie_link: https://openzaak.haven.3n.nl/ref/kanalen/#/autorisaties, filters: [] }
+            - { naam: besluittypen, documentatie_link: https://openzaak.haven.3n.nl/ref/kanalen/#/besluittypen, filters: [ catalogus ] }
+            - { naam: informatieobjecttypen, documentatie_link: https://openzaak.haven.3n.nl/ref/kanalen/#/informatieobjecttypen, filters: [ catalogus ] }
+            - { naam: zaaktypen, documentatie_link: https://openzaak.haven.3n.nl/ref/kanalen/#/zaaktypen, filters: [ catalogus ] }
+            - { naam: zaken, documentatie_link: https://openzaak.haven.3n.nl/ref/kanalen/#/zaken, filters: [ bronorganisatie, zaaktype, vertrouwelijkheidaanduiding ] }
+            - { naam: documenten, documentatie_link: https://openzaak.haven.3n.nl/ref/kanalen/#/documenten, filters: [ bronorganisatie, informatieobjecttype, vertrouwelijkheidaanduiding ] }
+            - { naam: besluiten, documentatie_link: https://openzaak.haven.3n.nl/ref/kanalen/#/besluiten, filters: [ verantwoordelijke_organisatie, besluittype ] }
     global:
       configuration: { enabled: true }
 ---

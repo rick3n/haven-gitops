@@ -7,6 +7,7 @@ resources:
   - namespace.yaml
   - helmrepository.yaml
   - secrets.sops.yaml
+  - koppeling.sops.yaml
   - cnpg.yaml
   - openzaak.yaml
   - opennotificaties.yaml
