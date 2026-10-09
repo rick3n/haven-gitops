@@ -4,6 +4,10 @@ metadata:
   name: kyverno-policies
 spec:
   values:
+    # Ignore i.p.v. Fail: als de Kyverno-webhook even niet antwoordt (dit lab
+    # is krap), mag dat niet ook Flux, drains en MetalLB blokkeren. De
+    # policies blijven Enforce; alleen een onbereikbare webhook wordt niet fataal.
+    failurePolicy: Ignore
     # metallb-system: speaker/frr-k8s hebben hostNetwork, NET_RAW en root nodig
     # (laag 2 in nixos_eigen_hardware1/haven/cluster, niet uit deze repo).
     policyExclude:
