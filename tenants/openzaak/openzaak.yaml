@@ -29,6 +29,13 @@ spec:
       enabled: false
     nginx:
       replicaCount: 1
+      securityContext:
+        capabilities: { drop: [ "ALL" ] }
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: false
+        runAsNonRoot: true
+        runAsUser: 101
+        seccompProfile: { type: RuntimeDefault }
     podSecurityContext:
       fsGroup: 1000
       seccompProfile: { type: RuntimeDefault }
