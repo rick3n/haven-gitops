@@ -3,10 +3,14 @@ kind: HelmRelease
 metadata:
   name: istiod
 spec:
-  values:  
+  values:
+    # Upstream (local) zet requests op 1m/1Mi; de HPA rekent dan 220% CPU
+    # en schaalt naar 5 istiods — zonde van ~600 MiB op dit cluster.
+    # Eén istiod met een eerlijke request is genoeg voor zes nodes.
+    pilot:
+      autoscaleEnabled: false
+      replicaCount: 1
     resources:
-      # set resource requests so that istiod can run on local Kind envs
       requests:
-        cpu: 1m
-        memory: 1Mi
-    
+        cpu: 100m
+        memory: 256Mi
