@@ -2,52 +2,54 @@
 #   client_id "openzaak"          — Open Zaak publiceert notificaties bij ON
 #   client_id "opennotificaties"  — ON leest de Autorisaties API van Open Zaak
 # Beide kanten kennen beide secrets (django-setup-configuration, value_from.env).
+# Naam bewust niet "<app>-config-secrets": die naam beheert de Helm-chart zelf
+# en Helm ruimt hem op bij de upgrade naar existingConfigurationSecrets.
 apiVersion: v1
 kind: Secret
 metadata:
-    name: openzaak-config-secrets
+    name: openzaak-koppeling
     namespace: openzaak
 type: Opaque
 stringData:
-    secret_openzaak: ENC[AES256_GCM,data:I0ck2fZoNmYNjfvKIHsbZcLAjjeURPqP61O0jjzv3/ywCCMy0mQuPuDxp9Q7axwY,iv:lcNAc7obhdno/pm127Oy5KScOHXnoCF2qjxD6VaYgfA=,tag:NZtSngu2ZeA+RqLOPmOCug==,type:str]
-    secret_opennotificaties: ENC[AES256_GCM,data:jQCMGzwUBVRalWuhfZrV2vUKaVIfB9Klxj5guOVMXom6dxJ0BE4Uj0bV6mLKYxwm,iv:SdAeJCwhc2R0UCzxVCGP8BHSUmznzLffdZ1g106cgZs=,tag:+WcdneViDV0GyHUU387cGQ==,type:str]
+    secret_openzaak: ENC[AES256_GCM,data:qSyOKozLW2n2fCK0EcHBVNZ3h++wRk3O6mrMhvHxMDTv7vK7HX66WzmdNGN/FlCk,iv:qYVnSls62uJwjGuX+mXgkAtts7ApUhA+4yl/T9a6rsM=,tag:VkiLcw2FEigjAXNkvhkUpA==,type:str]
+    secret_opennotificaties: ENC[AES256_GCM,data:OkmjXTCHUWrQObB8kVPffF8bMVMnCQw3S4dGeqxKeUzKgCe7HyMpCSMUEi/v4nJ7,iv:INNnm9Lz/egTH7Cijt55qUCzZCMa6sN0ptJ7WnRAukI=,tag:Um+vM6Zp74X3z5NvstpBcQ==,type:str]
 sops:
     age:
         - recipient: age130vs6nqtwyhsq6kj7s6u2al665n7wvnwdjx7032s7jamrpyw43esq64xfn
           enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBEZlhOWVJYMTViM1dWSkQ4
-            UlpnbDBsVGlpNk9SWURmODNPUVZNbHM1dW00CjN2VVFWb0N6ci83VmgwTVZxVXh4
-            WExaUU9xZVhxa2wxaUJjdDJMNmgwSU0KLS0tIDlLR1MwdXBxeGIxSVNpZ3BlczlL
-            TnYxS1E4TGozbUFGOHcvTTRXVWg4UWsKK4sZeW3Z9I69XsKHBKOt5DBRS2DzKktS
-            St0DVAkM5BhWaqVqfjHYRORqXuMcnL+G6p6gyQXJnDUscDT+nduWMg==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBtc281RVNBNllGTVg5Mll3
+            Q3R6NE1yUUVsQjVYeE1mTXZVTzU4allRSzJFCmdFcGFrbEtBZkROZGpWQkRXclhO
+            dzZncnJqWldCL09QMUJ0NUh1SFRWaUEKLS0tIHpuUC8vL0ZzMmh5eDFwUEpyU1VD
+            aXYxbnFZZ0tyZ091NEQ0UURQdlVFN0EKQwEVMkh8OoHxSU4PPDhd8eVL18+zgWEI
+            RrzxUa2rKOGZj9Ta1jOMpaFzj4t1flA/bmUlBkuk2YWdapKtDnwc1w==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2026-10-09T09:37:55Z"
-    mac: ENC[AES256_GCM,data:jN9479UswzogiYujz5+0eunE9GsljY3MmYVzYkwgvogIc9sapF3VbzgHi47Ur2GUz5iUfckIBwkoM+R+tRnjzULIBDDsVQblSsqyU2GkEGjXYksqnnMlm2WvcfvGwkoFmYRhZr5TiZkHUugkir01rdKpvpE4cbymdUBkcgmG6Wo=,iv:qOaazQIXSJz9f+Mf3s5fKfjUS7jpSgbROaIyaYFxKPQ=,tag:Zf5cHJZXdUm2935G+r2coQ==,type:str]
+    lastmodified: "2026-10-09T09:43:52Z"
+    mac: ENC[AES256_GCM,data:RS3SEJL6HWZboZe5fSahoKZiK/7HE5tq76nUh4f3n5YC5m1d4GWyZhHz8usFMwNzEft2B/Al80Yk/iMh/Hi7Mwh1j68nIZyssnECcwjd8538MSetCp5pZf+UW3ComzuINaLP6yz787Mh0h1kMTSoxjISb45gB76cOzwqPrGwKUo=,iv:UVfamvQ8OtO1b5yc8M8xzY47FLuwrXxXBf1U10jOJG4=,tag:N6X9IsWtdFeNQegcL1dbww==,type:str]
     encrypted_regex: ^(data|stringData)$
     version: 3.11.0
 ---
 apiVersion: v1
 kind: Secret
 metadata:
-    name: opennotificaties-config-secrets
+    name: opennotificaties-koppeling
     namespace: openzaak
 type: Opaque
 stringData:
-    secret_openzaak: ENC[AES256_GCM,data:gkVy3ieFKU7SoUyuQ8OPyBH7czVRwQz/L2i0/XUreO3FwKCXewvLA8xf1airX3wF,iv:x5bltSAwx50QTjwEls+mCMTxWlsNGczAbdO5smABUf0=,tag:1qKn/PB3VGlcxwbsst6CIQ==,type:str]
-    secret_opennotificaties: ENC[AES256_GCM,data:dc0WHprypEM9wrFaFs+kMDL/vibeFCu2nD64/Z9by71iCYvobtl9WIrQyvTLkX8M,iv:Fipi86+cwR3UzwEAFeHaUyhRxV3RucCC1UYUBcp0S1c=,tag:K9GQ+zqNHw2BSXTWjdRtHw==,type:str]
+    secret_openzaak: ENC[AES256_GCM,data:s2XDV23sf5Qs9S5UebbUfx1snWXVIQJE36ixgbNE2CmfYigypD0agemV/uRJdGrw,iv:XeawmQ4txbrgJd3tDNH1Uiuj0f3nRrUB4ULEqEo9M70=,tag:dbsxrRh31M6VQv8BhU1yXg==,type:str]
+    secret_opennotificaties: ENC[AES256_GCM,data:Wwkhc8OFoxBK85EtQyRzdjg9JEO8EKgUzkEQxXlO3lKlcqh5Nnd1quPp1gbFEzTD,iv:badLvK9FZANZ9k2/DieYL96rraSbal5sjVg/wZUveXg=,tag:qijJm6lflWfeQReHQLHp+Q==,type:str]
 sops:
     age:
         - recipient: age130vs6nqtwyhsq6kj7s6u2al665n7wvnwdjx7032s7jamrpyw43esq64xfn
           enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBEZlhOWVJYMTViM1dWSkQ4
-            UlpnbDBsVGlpNk9SWURmODNPUVZNbHM1dW00CjN2VVFWb0N6ci83VmgwTVZxVXh4
-            WExaUU9xZVhxa2wxaUJjdDJMNmgwSU0KLS0tIDlLR1MwdXBxeGIxSVNpZ3BlczlL
-            TnYxS1E4TGozbUFGOHcvTTRXVWg4UWsKK4sZeW3Z9I69XsKHBKOt5DBRS2DzKktS
-            St0DVAkM5BhWaqVqfjHYRORqXuMcnL+G6p6gyQXJnDUscDT+nduWMg==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBtc281RVNBNllGTVg5Mll3
+            Q3R6NE1yUUVsQjVYeE1mTXZVTzU4allRSzJFCmdFcGFrbEtBZkROZGpWQkRXclhO
+            dzZncnJqWldCL09QMUJ0NUh1SFRWaUEKLS0tIHpuUC8vL0ZzMmh5eDFwUEpyU1VD
+            aXYxbnFZZ0tyZ091NEQ0UURQdlVFN0EKQwEVMkh8OoHxSU4PPDhd8eVL18+zgWEI
+            RrzxUa2rKOGZj9Ta1jOMpaFzj4t1flA/bmUlBkuk2YWdapKtDnwc1w==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2026-10-09T09:37:55Z"
-    mac: ENC[AES256_GCM,data:jN9479UswzogiYujz5+0eunE9GsljY3MmYVzYkwgvogIc9sapF3VbzgHi47Ur2GUz5iUfckIBwkoM+R+tRnjzULIBDDsVQblSsqyU2GkEGjXYksqnnMlm2WvcfvGwkoFmYRhZr5TiZkHUugkir01rdKpvpE4cbymdUBkcgmG6Wo=,iv:qOaazQIXSJz9f+Mf3s5fKfjUS7jpSgbROaIyaYFxKPQ=,tag:Zf5cHJZXdUm2935G+r2coQ==,type:str]
+    lastmodified: "2026-10-09T09:43:52Z"
+    mac: ENC[AES256_GCM,data:RS3SEJL6HWZboZe5fSahoKZiK/7HE5tq76nUh4f3n5YC5m1d4GWyZhHz8usFMwNzEft2B/Al80Yk/iMh/Hi7Mwh1j68nIZyssnECcwjd8538MSetCp5pZf+UW3ComzuINaLP6yz787Mh0h1kMTSoxjISb45gB76cOzwqPrGwKUo=,iv:UVfamvQ8OtO1b5yc8M8xzY47FLuwrXxXBf1U10jOJG4=,tag:N6X9IsWtdFeNQegcL1dbww==,type:str]
     encrypted_regex: ^(data|stringData)$
     version: 3.11.0

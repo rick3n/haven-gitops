@@ -73,7 +73,7 @@ spec:
         exporterOtlpEndpoint: http://alloy.alloy:4317
         exporterOtlpMetricsInsecure: true
     # Secrets voor de koppeling (koppeling.sops.yaml) komen als env in de config-job.
-    existingConfigurationSecrets: openzaak-config-secrets
+    existingConfigurationSecrets: openzaak-koppeling
     configuration:
       enabled: true
       overwrite: true
