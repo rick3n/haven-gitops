@@ -25,15 +25,6 @@ spec:
       concurrency: 10
     flower:
       enabled: false
-    nginx:
-      replicaCount: 1
-      securityContext:
-        capabilities: { drop: [ "ALL" ] }
-        allowPrivilegeEscalation: false
-        readOnlyRootFilesystem: false
-        runAsNonRoot: true
-        runAsUser: 101
-        seccompProfile: { type: RuntimeDefault }
     podSecurityContext:
       fsGroup: 1000
       seccompProfile: { type: RuntimeDefault }
@@ -57,7 +48,7 @@ spec:
       allowedHosts: "opennotificaties.haven.3n.nl,opennotificaties-nginx,localhost"
       siteDomain: opennotificaties.haven.3n.nl
       isHttps: true
-      numProxies: 2
+      numProxies: 1               # geen nginx in deze chart; alleen de Istio-gateway
       environment: haven-lab
       database:
         host: opennotificaties-pg-rw
@@ -88,4 +79,4 @@ spec:
   hostnames: [ opennotificaties.haven.3n.nl ]
   rules:
     - backendRefs:
-        - { name: opennotificaties-nginx, port: 80 }
+        - { name: opennotificaties, port: 80 }
