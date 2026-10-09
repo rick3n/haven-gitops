@@ -4,6 +4,16 @@ namespace: istio-system
 resources:
   - ../../base/generic
   - ../../base/ambient-mode
-  # - ../../base/sidecar-mode
 patches:
   - path: patches/helm-release-istiod.yaml
+  # Talos handhaaft Pod Security Admission "baseline" op elke namespace;
+  # istio-cni en ztunnel hebben NET_ADMIN/hostPath nodig. Kyverno-policies
+  # sluiten istio-system al uit (zie kyverno/policies), PSA moet dat ook.
+  - target:
+      kind: Namespace
+      name: set-in-overlay
+    patch: |
+      - op: add
+        path: /metadata/labels
+        value:
+          pod-security.kubernetes.io/enforce: privileged
