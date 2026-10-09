@@ -1,0 +1,27 @@
+# Keycloak bootstrap-admin (master realm). Alleen gebruikt bij een lege
+# database; op het huidige cluster is 'admin' met dit wachtwoord handmatig
+# aangemaakt (9 okt) nadat de operator een tijdelijke temp-admin had gemaakt.
+apiVersion: v1
+kind: Secret
+metadata:
+    name: keycloak-bootstrap-admin
+    namespace: keycloak-instances
+type: Opaque
+stringData:
+    username: ENC[AES256_GCM,data:xa7mPAQ=,iv:Ocli+1w8UNmESF21YndQ24xvZo4ZORsZD+Sw4JY500k=,tag:ptR2WHnxo4xLjQFNKL0OzQ==,type:str]
+    password: ENC[AES256_GCM,data:44uji2LkMvf1czV8p4nZlQn71/4EBvAp,iv:Bpr75kGP11jfO6b9YBfxffADx20qFL2Ip5/UtW7r35k=,tag:1Lyd3xDQ6Dt4V8WrXfI+YQ==,type:str]
+sops:
+    age:
+        - recipient: age130vs6nqtwyhsq6kj7s6u2al665n7wvnwdjx7032s7jamrpyw43esq64xfn
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBISWROK2pubDhhclBQZ2Vq
+            eHhmV0tzcFg5RWpyQWp6UWQ1VkJwUm5CR2owCkpxT3NtMWZGTU9KdXJNRStGNlFZ
+            aWtqNjVESHV1T3dlN1orZENwSDdHR00KLS0tIDdCekJmSWh3TWhybTZpeXBPVVA5
+            aGdkSnVUY3lndy9Oc2kyOG9QVkNWWW8KGvoaXj7YT0SXJ957WuXJELbF+rtykH2r
+            uhtj05liN/0OibJXzrkd4VNnV0lE3lEGLOpqaTHtpkBtO5Wn2ddMSA==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2026-10-09T22:39:56Z"
+    mac: ENC[AES256_GCM,data:+CFR94wnUXy5IVlkUExp1xK5wmQQ7AM5oTa4gizFr7ckF5l+S8dgT4q4CWnIOjtsWzT7ABUCpu0njhAHztjJsztKv5XYgUKzRYTUDoZ+TQCEB+EWrKYq7ODXJLjB2Snk/0e3JBMo+p1bP1YmnaDOVzLgvFzma+YmNIT8YfhKQYg=,iv:yUor97ClYWfvUpaPHje2kfdFmTzit0mEUeAHc+Fno68=,tag:Ofeo6NMvIfrnstURdDjvIQ==,type:str]
+    encrypted_regex: ^(data|stringData)$
+    version: 3.11.0

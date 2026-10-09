@@ -4,6 +4,7 @@ namespace: keycloak-instances
 resources:
   - ../../base
   - secret.sops.yaml      # KEYCLOAK_ADMIN_PASSWORD, versleuteld met age (Flux decryption)
+  - bootstrap-admin.sops.yaml # master-realm admin (desired state voor een verse database)
   - realm-users.sops.yaml # wachtwoorden demo-accounts + OIDC-clientsecrets (placeholders)
 patches:
   - target:
@@ -19,6 +20,11 @@ patches:
       - op: add
         path: /spec/hostname/backchannelDynamic
         value: true
+      - op: add
+        path: /spec/bootstrapAdmin
+        value:
+          user:
+            secret: keycloak-bootstrap-admin
   - target:
       kind: HTTPRoute
       name: keycloak
