@@ -1,0 +1,7 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: maykinmedia
+spec:
+  interval: 12h
+  url: https://maykinmedia.github.io/charts/

@@ -1,0 +1,92 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: openzaak
+spec:
+  interval: 30m
+  install:
+    strategy: { name: RetryOnFailure, retryInterval: 2m }
+  upgrade:
+    strategy: { name: RetryOnFailure, retryInterval: 2m }
+  chart:
+    spec:
+      chart: openzaak
+      version: 1.15.0
+      sourceRef: { kind: HelmRepository, name: maykinmedia }
+      interval: 12h
+  # Secrets (DB, SECRET_KEY, superuser) komen uit openzaak-values (SOPS).
+  valuesFrom:
+    - kind: Secret
+      name: openzaak-values
+      valuesKey: values.yaml
+  values:
+    # Eén demogebruiker: alles op 1 replica, Flower uit.
+    replicaCount: 1
+    worker:
+      replicaCount: 1
+      concurrency: 2
+    flower:
+      enabled: false
+    nginx:
+      replicaCount: 1
+    podSecurityContext:
+      fsGroup: 1000
+      seccompProfile: { type: RuntimeDefault }
+    securityContext:
+      capabilities: { drop: [ "ALL" ] }
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: false
+      runAsNonRoot: true
+      runAsUser: 1000
+      seccompProfile: { type: RuntimeDefault }
+    persistence:
+      enabled: true
+      size: 5Gi
+      storageClassName: nfs         # RWX voor de Documenten-API-media
+    redis:
+      master:
+        persistence: { enabled: false }
+        resources:
+          requests: { cpu: 10m, memory: 64Mi }
+    settings:
+      allowedHosts: "openzaak.haven.3n.nl,openzaak-nginx,localhost"
+      siteDomain: openzaak.haven.3n.nl
+      isHttps: true
+      numProxies: 2                 # Istio-gateway + nginx
+      environment: haven-lab
+      database:
+        host: openzaak-pg-rw
+        port: 5432
+        username: openzaak
+        name: openzaak
+        sslmode: prefer
+      # Notificaties pas aanzetten als Open Notificaties gekoppeld is (stap 2).
+      notificationsDisabled: true
+      otel:
+        disabled: false
+        exporterOtlpEndpoint: http://alloy.alloy:4317
+        exporterOtlpMetricsInsecure: true
+    configuration:
+      enabled: true
+      overwrite: true
+      job: { enabled: true, backoffLimit: 2 }
+      data: |-
+        sites_config_enable: true
+        sites_config:
+          items:
+            - domain: openzaak.haven.3n.nl
+              name: Open Zaak — Haven-lab 3n.nl
+    global:
+      configuration: { enabled: true }
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: openzaak
+spec:
+  parentRefs:
+    - { name: public-gateway, namespace: istio-gateway }
+  hostnames: [ openzaak.haven.3n.nl ]
+  rules:
+    - backendRefs:
+        - { name: openzaak-nginx, port: 80 }

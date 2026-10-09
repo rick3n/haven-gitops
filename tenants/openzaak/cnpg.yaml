@@ -1,0 +1,43 @@
+# Twee kleine PostgreSQL-clusters uit CloudNative-PG (Haven+). Open Zaak wil
+# pg_trgm én PostGIS; het CNPG-PostGIS-image heeft beide aan boord.
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: openzaak-pg
+spec:
+  instances: 1
+  enablePDB: false
+  imageName: ghcr.io/cloudnative-pg/postgis:16-3.4
+  storage:
+    size: 5Gi
+  resources:
+    requests: { cpu: 50m, memory: 256Mi }
+    limits: { memory: 1Gi }
+  bootstrap:
+    initdb:
+      database: openzaak
+      owner: openzaak
+      secret:
+        name: openzaak-db
+      postInitApplicationSQL:
+        - CREATE EXTENSION IF NOT EXISTS pg_trgm;
+        - CREATE EXTENSION IF NOT EXISTS postgis;
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: opennotificaties-pg
+spec:
+  instances: 1
+  enablePDB: false
+  storage:
+    size: 2Gi
+  resources:
+    requests: { cpu: 50m, memory: 128Mi }
+    limits: { memory: 512Mi }
+  bootstrap:
+    initdb:
+      database: opennotificaties
+      owner: opennotificaties
+      secret:
+        name: opennotificaties-db

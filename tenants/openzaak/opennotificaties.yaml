@@ -1,0 +1,84 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: opennotificaties
+spec:
+  interval: 30m
+  install:
+    strategy: { name: RetryOnFailure, retryInterval: 2m }
+  upgrade:
+    strategy: { name: RetryOnFailure, retryInterval: 2m }
+  chart:
+    spec:
+      chart: opennotificaties
+      version: 2.1.0
+      sourceRef: { kind: HelmRepository, name: maykinmedia }
+      interval: 12h
+  valuesFrom:
+    - kind: Secret
+      name: opennotificaties-values
+      valuesKey: values.yaml
+  values:
+    replicaCount: 1
+    worker:
+      replicaCount: 1
+      concurrency: 10
+    flower:
+      enabled: false
+    nginx:
+      replicaCount: 1
+    podSecurityContext:
+      fsGroup: 1000
+      seccompProfile: { type: RuntimeDefault }
+    securityContext:
+      capabilities: { drop: [ "ALL" ] }
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: false
+      runAsNonRoot: true
+      runAsUser: 1000
+      seccompProfile: { type: RuntimeDefault }
+    persistence:
+      enabled: true
+      size: 512Mi
+      storageClassName: nfs
+    redis:
+      master:
+        persistence: { enabled: false }
+        resources:
+          requests: { cpu: 10m, memory: 64Mi }
+    settings:
+      allowedHosts: "opennotificaties.haven.3n.nl,opennotificaties-nginx,localhost"
+      siteDomain: opennotificaties.haven.3n.nl
+      isHttps: true
+      numProxies: 2
+      environment: haven-lab
+      database:
+        host: opennotificaties-pg-rw
+        port: 5432
+        username: opennotificaties
+        name: opennotificaties
+        sslmode: prefer
+    configuration:
+      enabled: true
+      overwrite: true
+      job: { enabled: true, backoffLimit: 2 }
+      data: |-
+        sites_config_enable: true
+        sites_config:
+          items:
+            - domain: opennotificaties.haven.3n.nl
+              name: Open Notificaties — Haven-lab 3n.nl
+    global:
+      configuration: { enabled: true }
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: opennotificaties
+spec:
+  parentRefs:
+    - { name: public-gateway, namespace: istio-gateway }
+  hostnames: [ opennotificaties.haven.3n.nl ]
+  rules:
+    - backendRefs:
+        - { name: opennotificaties-nginx, port: 80 }
