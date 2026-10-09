@@ -4,21 +4,26 @@ metadata:
   name: kyverno-policies
 spec:
   values:
+    # metallb-system: speaker/frr-k8s hebben hostNetwork, NET_RAW en root nodig
+    # (laag 2 in nixos_eigen_hardware1/haven/cluster, niet uit deze repo).
     policyExclude:
       disallow-capabilities:
         any:
         - resources:
             namespaces: 
+            - metallb-system
             - istio-system
             - nfs-server-provisioner
       disallow-host-namespaces:
         any:
         - resources:
-            namespaces: []
+            namespaces:
+            - metallb-system
       disallow-host-path:
         any:
         - resources:
             namespaces:
+            - metallb-system
             - falco
             - istio-system
             - local-path-storage
@@ -27,41 +32,50 @@ spec:
       disallow-host-ports:
         any:
         - resources:
-            namespaces: []
+            namespaces:
+            - metallb-system
       disallow-host-process:
         any:
         - resources:
-            namespaces: []
+            namespaces:
+            - metallb-system
       disallow-privileged-containers:
         any:
         - resources:
             namespaces:
+            - metallb-system
             - falco
       disallow-proc-mount:
         any:
         - resources:
-            namespaces: []
+            namespaces:
+            - metallb-system
       disallow-selinux:
         any:
         - resources:
-            namespaces: []
+            namespaces:
+            - metallb-system
       restrict-apparmor-profiles:
         any:
         - resources:
             namespaces: 
+            - metallb-system
             - istio-system
       restrict-seccomp:
         any:
         - resources:
-            namespaces: []
+            namespaces:
+            - metallb-system
       restrict-sysctls:
         any:
         - resources:
-            namespaces: []
+            namespaces:
+            - metallb-system
       disallow-capabilities-strict:
         any:
         - resources:
             namespaces: 
+            - metallb-system
             - istio-system
             - local-path-storage
             - nfs-server-provisioner # needs additional capabilities to function properly
@@ -71,6 +85,7 @@ spec:
         any:
         - resources:
             namespaces:
+            - metallb-system
             - istio-system
             - local-path-storage
             - falco
@@ -79,6 +94,7 @@ spec:
         any:
         - resources:
             namespaces:
+            - metallb-system
             - istio-system
             - trivy-system
             - nfs-server-provisioner
@@ -88,6 +104,7 @@ spec:
         any:
         - resources:
             namespaces:
+            - metallb-system
             - istio-system
             - local-path-storage
             - trivy-system # trivy needs to be root in order to be able to scan filesystems
@@ -98,6 +115,7 @@ spec:
         any:
         - resources:
             namespaces:
+            - metallb-system
             - istio-gateway # Gateway API lacks seccomp profile configuration, but a mutating admission could enable it later
             - local-path-storage
             - falco
@@ -110,6 +128,7 @@ spec:
         any:
         - resources:
             namespaces:
+            - metallb-system
             - istio-system
             - falco
             - local-path-storage
