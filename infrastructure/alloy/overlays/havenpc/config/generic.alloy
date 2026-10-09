@@ -1,0 +1,62 @@
+discovery.kubernetes "pods" {
+  role = "pod"
+
+  selectors {
+    role  = "pod"
+    field = "spec.nodeName=" + coalesce(env("HOSTNAME"), constants.hostname)
+  }
+}
+
+discovery.kubernetes "k8s_nodes" {
+    role = "node"
+
+    selectors {
+        role  = "pod"
+        field = "spec.nodeName=" + coalesce(env("HOSTNAME"), constants.hostname)
+    }
+}
+
+discovery.relabel "pods" {
+        targets = discovery.kubernetes.pods.targets
+
+  rule {
+          source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name", "__meta_kubernetes_pod_label_app", "__tmp_controller_name", "__meta_kubernetes_pod_name"]
+          regex         = "^;*([^;]+)(;.*)?$"
+          target_label  = "app"
+  }
+
+  rule {
+          source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_instance", "__meta_kubernetes_pod_label_instance"]
+          regex         = "^;*([^;]+)(;.*)?$"
+          target_label  = "instance"
+  }
+
+  rule {
+          source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_component", "__meta_kubernetes_pod_label_component"]
+          regex         = "^;*([^;]+)(;.*)?$"
+          target_label  = "component"
+  }
+
+  rule {
+          source_labels = ["__meta_kubernetes_namespace"]
+          target_label  = "namespace"
+  }
+
+  rule {
+          source_labels = ["namespace", "app"]
+          separator     = "/"
+          target_label  = "job"
+          replacement   = ""
+  }
+
+  rule {
+          source_labels = ["__meta_kubernetes_pod_container_name"]
+          target_label  = "container"
+  }
+  rule {
+    source_labels = ["__meta_kubernetes_pod_uid", "__meta_kubernetes_pod_container_name"]
+    target_label  = "__path__"
+    separator     = "/"
+    replacement   = "/var/log/pods/*$1/*.log"
+  }
+}

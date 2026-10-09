@@ -1,0 +1,37 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: keycloak-instances
+resources:
+  - ../../base
+  - secret.sops.yaml      # KEYCLOAK_ADMIN_PASSWORD, versleuteld met age (Flux decryption)
+patches:
+  - target:
+      kind: Keycloak
+      name: keycloak
+    # Publieke URL via de Istio-gateway (TLS van haven-ca); backchannelDynamic
+    # zodat in-cluster clients (Grafana) de token-endpoint via de Service halen
+    # zonder issuer-mismatch.
+    patch: |
+      - op: replace
+        path: /spec/hostname/hostname
+        value: https://keycloak.haven.3n.nl
+      - op: add
+        path: /spec/hostname/backchannelDynamic
+        value: true
+  - target:
+      kind: HTTPRoute
+      name: keycloak
+    patch: |
+      - op: replace
+        path: /spec/hostnames/0
+        value: keycloak.haven.3n.nl
+  - target:
+      kind: KeycloakRealmImport
+      name: havenplus-realm-import
+    patch: |
+      - op: replace
+        path: /spec/realm/clients/1/redirectUris/0
+        value: "https://grafana.haven.3n.nl/login/generic_oauth"
+      - op: replace
+        path: /spec/realm/clients/2/redirectUris/0
+        value: "https://opencost.haven.3n.nl/oauth2/callback"

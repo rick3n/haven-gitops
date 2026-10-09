@@ -1,0 +1,42 @@
+apiVersion: grafana.integreatly.org/v1beta1
+kind: Grafana
+metadata:
+  name: grafana
+spec:
+  config:
+    database:
+      type: postgres
+      name: grafana
+      user: grafana
+    server:
+      root_url: "https://grafana.haven.3n.nl"
+    security:
+      # admin-login blijft als terugvalpad als Keycloak plat ligt (lab).
+      admin_user: admin
+      admin_password: admin
+    auth.generic_oauth:
+      # auth_url is voor de browser (via de gateway); token/userinfo gaan
+      # in-cluster via de Service — Keycloak's backchannelDynamic houdt `iss` gelijk.
+      auth_url:  "https://keycloak.haven.3n.nl/realms/havenplus/protocol/openid-connect/auth"
+      token_url: "http://keycloak-service.keycloak-instances:8080/realms/havenplus/protocol/openid-connect/token"
+      api_url:   "http://keycloak-service.keycloak-instances:8080/realms/havenplus/protocol/openid-connect/userinfo"
+  httpRoute:
+    spec:
+      hostnames: [ grafana.haven.3n.nl ]
+  deployment:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: grafana
+              env:
+                - name: GF_DATABASE_HOST
+                  valueFrom:
+                    secretKeyRef:
+                      name: grafana-pg-cluster-app
+                      key: host
+                - name: GF_DATABASE_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: grafana-pg-cluster-app
+                      key: password

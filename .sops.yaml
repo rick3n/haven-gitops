@@ -1,0 +1,7 @@
+# Secrets voor cluster havenpc: versleuteld met de age-sleutel van havenpc
+# (/root/.config/sops/age/keys.txt op de host; zelfde sleutel als de Talos-secrets).
+# Flux ontsleutelt met het Secret flux-system/sops-age.
+creation_rules:
+  - path_regex: .*\.sops\.yaml$
+    encrypted_regex: ^(data|stringData)$
+    age: age130vs6nqtwyhsq6kj7s6u2al665n7wvnwdjx7032s7jamrpyw43esq64xfn

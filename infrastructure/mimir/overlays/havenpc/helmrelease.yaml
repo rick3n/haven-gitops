@@ -1,0 +1,70 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: mimir
+spec:
+  interval: 30m
+  install:
+    strategy: 
+      name: RetryOnFailure
+      retryInterval: 2m
+  upgrade:
+    strategy: 
+      name: RetryOnFailure
+      retryInterval: 2m
+  chart:
+    spec:
+      chart: ./operations/helm/charts/mimir-distributed
+      sourceRef:
+        kind: GitRepository
+        name: mimir
+      interval: 1m
+  values:
+    deploymentMode: monolithic
+    fullnameOverride: mimir
+
+    mimir:
+      structuredConfig:
+        common:
+          storage:
+            backend: s3
+            s3:
+              endpoint: garage.garage.svc:3900
+              access_key_id: GK189d726f849af84af01bdfeb # static Garage key for local env ONLY!
+              secret_access_key: f44a7eb0d58c8dd785c5494506445abe93cd75afab48fa0dd2db35bdd78a01f0 # static Garage secret for local env ONLY!
+              insecure: true
+        blocks_storage:
+          s3:
+            bucket_name: mimir-blocks
+        alertmanager_storage:
+          s3:
+            bucket_name: mimir-alertmanager
+        ruler_storage:
+          s3:
+            bucket_name: mimir-ruler
+        limits:
+          compactor_blocks_retention_period: 3d
+
+    monolithic:
+      replicas: 2 # we need at least two live replicas in order for Alloy to send data
+      resources:
+        # set resource requests so that mimir can run on local Kind envs
+        requests:
+          cpu: 1m
+          memory: 1Mi
+      persistentVolume:
+        enabled: true
+        size: "3Gi"
+      zoneAwareReplication:
+        enabled: false
+      compression:
+        enabled: true
+
+    nginx:
+      enabled: false
+
+    minio:
+      enabled: false
+
+    alertmanager:
+      enabled: false

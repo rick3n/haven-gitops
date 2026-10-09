@@ -1,0 +1,139 @@
+prometheus.operator.podmonitors "podmonitors" {
+    forward_to = [prometheus.remote_write.mimir.receiver]
+}
+
+prometheus.operator.servicemonitors "monitors" {
+    forward_to = [prometheus.remote_write.mimir.receiver]
+}
+
+// we must honor labels so conflicting labels like namespace won't be relabeled as "external_namespace". This will 
+// break our current dashboard logic due to used filter variables. 
+// it might be possible to also do this via prometheus.operator.servicemonitor component and relabeling, but for now
+// we just enable a simple scrape. 
+// for more details see prometheus docs: https://prometheus.io/docs/prometheus/latest/configuration/configuration/
+discovery.kubernetes "ksm_svc" {
+    role = "service"
+    namespaces {
+        names = ["kube-state-metrics"]
+    }
+}
+
+prometheus.scrape "kube_state_metrics" {
+    targets         = discovery.kubernetes.ksm_svc.targets
+    scheme          = "http"
+    honor_labels    = true
+    scrape_interval = "30s"
+    forward_to      = [prometheus.relabel.namespace_filter.receiver]
+}
+
+prometheus.relabel "namespace_filter" {
+    forward_to        = [prometheus.remote_write.mimir.receiver]
+
+    // Drop any tenant records as these are already fetched through Tenant alloy configs
+    rule {
+        action        = "drop"
+        regex         = "^tenant-.*"
+        source_labels = ["namespace"]
+    }
+}
+
+// Kubelet metrics & CAdvisor
+// The Kubelet gathers metrics statistics at the node, volume, pod and container level.
+// This information is emitted by the K8S Summary API, which can be reached through a 
+// proxied request on the K8S API server. The configuration below utilises this to
+// retrieve Kubelet and CAdvisor telemetry data points.
+discovery.relabel "kubelet" {
+    targets = discovery.kubernetes.k8s_nodes.targets
+
+    // Replace the address with the HTTPS 443 endpoint, as by default
+    // the '__address__' label stores the HTTP endpoint.
+    rule {
+        replacement  = "kubernetes.default.svc:443"
+        target_label = "__address__"
+    }
+
+    // Set the '__metrics_path__' label used by the Prometheus scrape action
+    // later in the pipeline. This interpolates the node name in the proxy request
+    // for the API server, which will in turn query the Summary API.
+    rule {
+        regex         = "(.+)"
+        source_labels = ["__meta_kubernetes_node_name"]
+        replacement   = "/api/v1/nodes/$1/proxy/metrics"
+        target_label  = "__metrics_path__"
+    }
+}
+
+prometheus.scrape "kubelet" {
+    job_name = "integrations/kubernetes/kubelet"
+    targets  = discovery.relabel.kubelet.output
+    scheme   = "https"
+
+    tls_config {
+        server_name          = "kubernetes"
+        // Use the certificate bundle placed into the filesystem tree of every container in K8S.
+        ca_file              = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+        insecure_skip_verify = false
+    }
+
+    // Use the default credential that every Pod has through its associated Service Account.
+    bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+    forward_to        = [prometheus.remote_write.mimir.receiver]
+}
+
+discovery.relabel "cadvisor" {
+    targets = discovery.kubernetes.k8s_nodes.targets
+
+    // Replace the address with the HTTPS 443 endpoint, as by default
+    // the '__address__' label stores the HTTP endpoint.
+    rule {
+        replacement  = "kubernetes.default.svc:443"
+        target_label = "__address__"
+    }
+
+    // Set the '__metrics_path__' label used by the Prometheus scrape action
+    // later in the pipeline. This interpolates the node name in the proxy request
+    // for the API server, which will in turn query the Summary API.
+    rule {
+        regex         = "(.+)"
+        source_labels = ["__meta_kubernetes_node_name"]
+        replacement   = "/api/v1/nodes/$1/proxy/metrics/cadvisor"
+        target_label  = "__metrics_path__"
+    }
+}
+
+prometheus.scrape "cadvisor" {
+    job_name = "integrations/kubernetes/cadvisor"
+    targets  = discovery.relabel.cadvisor.output
+    scheme   = "https"
+
+    tls_config {
+        server_name          = "kubernetes"
+        // Use the certificate bundle placed into the filesystem tree of every container in K8S.
+        ca_file              = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+        insecure_skip_verify = false
+    }
+
+    // Use the default credential that every Pod has through its associated Service Account.
+    bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+    forward_to        = [prometheus.remote_write.mimir.receiver]
+}
+
+// Scrape Alloy itself
+prometheus.exporter.self "alloy" {
+}
+
+prometheus.scrape "alloy" {
+    targets    = prometheus.exporter.self.alloy.targets
+    forward_to = [prometheus.remote_write.mimir.receiver]
+}
+          
+// Write to Mimir
+prometheus.remote_write "mimir" {
+    endpoint {
+        url = "http://mimir-monolithic.mimir.svc.cluster.local:8080/api/v1/push"
+
+        headers = {
+            "X-Scope-OrgID" = "admin",
+        }
+    }
+}

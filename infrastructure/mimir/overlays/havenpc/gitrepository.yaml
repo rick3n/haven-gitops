@@ -1,0 +1,14 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: mimir
+spec:
+  interval: 5m0s
+  url: https://github.com/NGDATA/mimir
+  ref:
+    tag: mimir-distributed-5.8.0-lily
+  ignore: |
+    # exclude all
+    /*
+    # include charts directory
+    !/operations/helm/charts/mimir-distributed

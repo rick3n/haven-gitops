@@ -1,0 +1,57 @@
+//
+// RECEIVERS
+//
+otelcol.receiver.otlp "otlp_receiver" {
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+
+  http {
+    endpoint = "0.0.0.0:4318"
+  }
+
+  // Output straight to the OTLP gRPC exporter. We would usually do some processing
+  // first, most likely batch processing, but for this example we pass it straight
+  // through.
+  output {
+      metrics = [otelcol.processor.batch.default.input]
+      logs    = [otelcol.processor.batch.default.input]
+      traces  = [otelcol.processor.batch.default.input]
+  }
+}
+
+//
+// PROCESSORS
+//
+otelcol.processor.batch "default" {
+  output {
+    metrics = [otelcol.exporter.prometheus.mimir.input]
+    logs    = [otelcol.exporter.loki.loki.input]
+    traces  = [otelcol.exporter.otlp.tempo.input]
+  }
+}
+
+//
+// EXPORTERS
+//
+
+// Send metrics to Mimir
+otelcol.exporter.prometheus "mimir" {
+  forward_to = [prometheus.remote_write.mimir.receiver]
+}
+
+// Send logs to Loki
+otelcol.exporter.loki "loki" {
+  forward_to = [loki.write.main.receiver]
+}
+
+// Send traces to Tempo
+otelcol.exporter.otlp "tempo" {
+  client {
+    endpoint = "http://tempo-mono.tempo.svc.cluster.local:4317"
+    tls {
+      insecure = true
+      insecure_skip_verify = true
+    }
+  }
+}

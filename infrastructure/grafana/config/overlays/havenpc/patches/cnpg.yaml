@@ -1,0 +1,9 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: grafana-pg-cluster
+spec:
+  instances: 1
+  enablePDB: false
+  storage:
+    size: 1Gi

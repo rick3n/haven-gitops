@@ -1,0 +1,84 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pod-exec-role
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get"]
+- apiGroups: [""]
+  resources: ["pods/exec"]
+  verbs: ["create"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pod-exec-rolebinding
+subjects:
+- kind: ServiceAccount
+  name: garage-postconfig
+  namespace: garage
+roleRef:
+  kind: Role
+  name: pod-exec-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: garage-postconfig
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: garage-postconfig
+spec:
+  template:
+    spec:
+      serviceAccountName: garage-postconfig
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: postconfig
+        image: bitnamilegacy/kubectl:1.33.4
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            # Configure cluster layout
+            NODE_ID=$(kubectl exec garage-0 -c garage -- /garage node id -q)
+            echo "Node ID: $NODE_ID"
+            kubectl exec garage-0 -c garage -- /garage layout assign -z local -c 1GB "${NODE_ID}"
+            kubectl exec garage-0 -c garage -- /garage layout apply --version 1
+
+            # Import static access key for local env
+            kubectl exec garage-0 -c garage -- /garage key import -n havenplus-local-key GK189d726f849af84af01bdfeb f44a7eb0d58c8dd785c5494506445abe93cd75afab48fa0dd2db35bdd78a01f0 --yes
+
+            # Create buckets
+            kubectl exec garage-0 -c garage -- /garage bucket create velero
+            kubectl exec garage-0 -c garage -- /garage bucket create loki-chunks
+            kubectl exec garage-0 -c garage -- /garage bucket create loki-ruler
+            kubectl exec garage-0 -c garage -- /garage bucket create loki-admin
+            kubectl exec garage-0 -c garage -- /garage bucket create mimir-blocks
+            kubectl exec garage-0 -c garage -- /garage bucket create mimir-alertmanager
+            kubectl exec garage-0 -c garage -- /garage bucket create mimir-ruler
+
+            # Set bucket permissions
+            kubectl exec garage-0 -c garage -- /garage bucket allow --read --write --owner velero --key havenplus-local-key
+            kubectl exec garage-0 -c garage -- /garage bucket allow --read --write --owner loki-admin --key havenplus-local-key
+            kubectl exec garage-0 -c garage -- /garage bucket allow --read --write --owner loki-chunks --key havenplus-local-key
+            kubectl exec garage-0 -c garage -- /garage bucket allow --read --write --owner loki-ruler --key havenplus-local-key
+            kubectl exec garage-0 -c garage -- /garage bucket allow --read --write --owner mimir-blocks --key havenplus-local-key
+            kubectl exec garage-0 -c garage -- /garage bucket allow --read --write --owner mimir-alertmanager --key havenplus-local-key
+            kubectl exec garage-0 -c garage -- /garage bucket allow --read --write --owner mimir-ruler --key havenplus-local-key
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+      restartPolicy: Never
+  backoffLimit: 1

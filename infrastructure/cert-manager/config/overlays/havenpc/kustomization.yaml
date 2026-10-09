@@ -1,0 +1,8 @@
+# havenpc: maximaal zelf gehost — eigen root-CA via cert-manager.
+# Let's Encrypt is hier niet bruikbaar (haven.3n.nl wijst naar 10.42.0.200,
+# alleen via het tailnet); de root van haven-ca importeer je op demo-laptops.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: cert-manager
+resources:
+  - cluster-issuer-haven-ca.yaml

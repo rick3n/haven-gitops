@@ -1,0 +1,10 @@
+# havenpc: controller maakt zijn eigen sealing key (geen statische sleutel in git).
+# Secrets voor dit cluster gaan via Flux + SOPS/age, niet via SealedSecrets.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: sealed-secrets
+resources:
+  - ../../base
+patches:
+  - path: patches/helm-release.yaml
+  - path: patches/http-route.yaml

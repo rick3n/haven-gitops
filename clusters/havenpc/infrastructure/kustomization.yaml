@@ -1,0 +1,22 @@
+# Eerste tranche Haven+ op havenpc (3×5 GiB workers). Bewust nog uit:
+# falco, trivy, eck, opencost, velero, openbao, external-secrets, pinniped,
+# flux-webhook-receiver, cnpg-plugin-barman-cloud, nfs-server-provisioner
+# (RWX komt van csi-driver-nfs op de host). Volgorde volgt dependsOn.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - cluster-resources.yaml
+  - kyverno.yaml
+  - sealed-secrets.yaml
+  - cert-manager.yaml
+  - istio.yaml
+  - cloudnative-pg.yaml
+  - garage.yaml
+  - kube-state-metrics.yaml
+  - alloy.yaml
+  - loki.yaml
+  - mimir.yaml
+  - tempo.yaml
+  - grafana.yaml
+  - keycloak.yaml
+  - headlamp.yaml

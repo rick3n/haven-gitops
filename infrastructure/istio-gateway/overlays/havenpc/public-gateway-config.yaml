@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: public-gateway-config
+data:
+  service: |
+    metadata:
+      annotations:
+        metallb.io/loadBalancerIPs: 10.42.0.200
+    spec:
+      externalTrafficPolicy: Cluster

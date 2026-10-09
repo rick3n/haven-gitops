@@ -1,0 +1,31 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: haven-selfsigned
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: haven-root-ca
+  namespace: cert-manager
+spec:
+  isCA: true
+  commonName: Haven-lab Root CA (3n.nl)
+  secretName: haven-root-ca
+  duration: 87600h   # 10 jaar
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  issuerRef:
+    name: haven-selfsigned
+    kind: ClusterIssuer
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: haven-ca
+spec:
+  ca:
+    secretName: haven-root-ca
