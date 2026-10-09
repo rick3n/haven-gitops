@@ -3,6 +3,6 @@ kind: Kustomization
 namespace: loki
 resources:
   - ../../base
+  - s3-credentials.sops.yaml
 patches:
   - path: patches/helmrelease.yaml
-  - s3-credentials.sops.yaml
