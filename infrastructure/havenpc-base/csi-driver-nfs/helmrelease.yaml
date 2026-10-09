@@ -1,0 +1,33 @@
+# StorageClass "nfs" (default, RWX+RWO) op de NFS-export van de host.
+# Slaagt direct op de Haven-check rwxvolumes (provisioner bevat "nfs").
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: csi-driver-nfs
+spec:
+  interval: 30m
+  releaseName: csi-driver-nfs
+  install:
+    strategy: { name: RetryOnFailure, retryInterval: 2m }
+  upgrade:
+    strategy: { name: RetryOnFailure, retryInterval: 2m }
+  chart:
+    spec:
+      chart: csi-driver-nfs
+      version: 4.13.4
+      sourceRef: { kind: HelmRepository, name: csi-driver-nfs }
+      interval: 12h
+  values:
+    storageClass:
+      create: true
+      name: nfs
+      annotations:
+        storageclass.kubernetes.io/is-default-class: "true"
+      parameters:
+        server: 10.42.0.1
+        share: /srv/haven/nfs
+      reclaimPolicy: Delete
+      volumeBindingMode: Immediate
+      mountOptions:
+        - nfsvers=4.1
+        - noatime

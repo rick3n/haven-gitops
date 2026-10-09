@@ -1,0 +1,11 @@
+# Laag 2 van het Haven-lab, onder Flux-beheer (voorheen helmfile in
+# nixos_eigen_hardware1/haven/cluster). Release-namen gelijk aan de
+# helmfile-releases, zodat Flux de bestaande Helm-releases overneemt.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: metallb-system
+resources:
+  - namespace.yaml
+  - helmrepository.yaml
+  - helmrelease.yaml
+  - pool.yaml

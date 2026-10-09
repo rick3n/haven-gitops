@@ -1,0 +1,40 @@
+# Basislaag (laag 2): MetalLB, csi-driver-nfs, metrics-server. Geen
+# dependsOn op kyverno: deze moeten er ook zijn als Kyverno plat ligt.
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: base-metallb
+  namespace: flux-system
+spec:
+  interval: 15m0s
+  sourceRef: { kind: GitRepository, name: flux-system }
+  serviceAccountName: kustomize-controller
+  path: ./infrastructure/havenpc-base/metallb
+  prune: true
+  wait: true
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: base-csi-driver-nfs
+  namespace: flux-system
+spec:
+  interval: 15m0s
+  sourceRef: { kind: GitRepository, name: flux-system }
+  serviceAccountName: kustomize-controller
+  path: ./infrastructure/havenpc-base/csi-driver-nfs
+  prune: true
+  wait: true
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: base-metrics-server
+  namespace: flux-system
+spec:
+  interval: 15m0s
+  sourceRef: { kind: GitRepository, name: flux-system }
+  serviceAccountName: kustomize-controller
+  path: ./infrastructure/havenpc-base/metrics-server
+  prune: true
+  wait: true

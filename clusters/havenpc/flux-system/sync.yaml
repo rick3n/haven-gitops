@@ -1,0 +1,26 @@
+# Zelfde objecten als `flux create source git` / `flux create kustomization`
+# bij de installatie (haven/README.md in nixos_eigen_hardware1). Nu in git,
+# zodat interval/pad/branch desired state zijn.
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: flux-system
+  namespace: flux-system
+spec:
+  interval: 5m0s
+  ref:
+    branch: main
+  url: https://github.com/rick3n/haven-gitops
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: flux-system
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  path: ./clusters/havenpc
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system

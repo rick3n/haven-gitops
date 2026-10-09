@@ -1,0 +1,17 @@
+# LoadBalancer-adressen op het VM-net. 10.42.0.200 is de Istio public-gateway
+# (daar wijzen *.haven.3n.nl-records naar); .201+ voor latere diensten.
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: havenbr0
+spec:
+  addresses:
+    - 10.42.0.200-10.42.0.250
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: havenbr0
+spec:
+  ipAddressPools:
+    - havenbr0

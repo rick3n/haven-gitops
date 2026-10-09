@@ -1,0 +1,8 @@
+# Talos' Pod Security Admission (baseline) laat de speaker (hostNetwork,
+# NET_RAW) anders nooit starten.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: metallb-system
+  labels:
+    pod-security.kubernetes.io/enforce: privileged

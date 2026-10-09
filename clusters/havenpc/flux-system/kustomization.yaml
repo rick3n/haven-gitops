@@ -1,0 +1,7 @@
+# gotk-components.yaml = `flux install --export` (v2.8.8); zo upgradet Flux
+# zichzelf via git. sync.yaml = de bron en de root-Kustomization.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - gotk-components.yaml
+  - sync.yaml
