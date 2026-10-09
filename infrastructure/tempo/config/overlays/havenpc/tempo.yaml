@@ -7,6 +7,10 @@ spec:
     traces:
       backend: memory
       size: 2Gi
+  resources:
+    total:
+      requests: { cpu: 50m, memory: 384Mi }
+      limits: { memory: 768Mi }
   podSecurityContext:
     runAsNonRoot: true
     seccompProfile:

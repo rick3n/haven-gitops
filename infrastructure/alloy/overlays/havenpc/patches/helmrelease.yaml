@@ -7,6 +7,11 @@ spec:
     controller:
       type: daemonset
     alloy:
+      # Eerlijke requests: zonder requests propt de scheduler alles op één
+      # worker (gezien op 9 okt: worker1 vol, worker3 leeg).
+      resources:
+        requests: { cpu: 100m, memory: 384Mi }
+        limits: { memory: 768Mi }
       stabilityLevel: experimental
       configMap:
         name: alloy

@@ -13,6 +13,9 @@ spec:
       replicas: 1
       extraArgs:
         - -config.expand-env=true
+      resources:
+        requests: { cpu: 100m, memory: 512Mi }
+        limits: { memory: 1Gi }
     loki:
       commonConfig:
         replication_factor: 1

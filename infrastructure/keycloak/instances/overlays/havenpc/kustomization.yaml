@@ -20,6 +20,11 @@ patches:
       - op: add
         path: /spec/hostname/backchannelDynamic
         value: true
+      - op: replace
+        path: /spec/resources
+        value:
+          requests: { cpu: 100m, memory: 768Mi }
+          limits: { memory: 1536Mi }
       - op: add
         path: /spec/bootstrapAdmin
         value:

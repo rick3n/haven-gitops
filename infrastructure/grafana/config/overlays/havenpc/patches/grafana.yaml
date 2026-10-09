@@ -25,6 +25,9 @@ spec:
         spec:
           containers:
             - name: grafana
+              resources:
+                requests: { cpu: 50m, memory: 256Mi }
+                limits: { memory: 512Mi }
               env:
                 - name: GF_DATABASE_HOST
                   valueFrom:

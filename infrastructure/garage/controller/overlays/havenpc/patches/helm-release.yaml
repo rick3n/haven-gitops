@@ -9,3 +9,6 @@ spec:
       dbEngine: "sqlite"
     deployment:
       replicaCount: 1
+    resources:
+      requests: { cpu: 50m, memory: 192Mi }
+      limits: { memory: 512Mi }
