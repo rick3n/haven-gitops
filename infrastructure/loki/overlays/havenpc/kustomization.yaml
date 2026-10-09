@@ -5,3 +5,4 @@ resources:
   - ../../base
 patches:
   - path: patches/helmrelease.yaml
+  - s3-credentials.sops.yaml

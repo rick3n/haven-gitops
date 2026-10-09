@@ -6,3 +6,4 @@ resources:
   - gitrepository.yaml
   - helmrelease.yaml
   
+  - s3-credentials.sops.yaml

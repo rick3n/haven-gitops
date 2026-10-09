@@ -10,10 +10,6 @@ spec:
       user: grafana
     server:
       root_url: "https://grafana.haven.3n.nl"
-    security:
-      # admin-login blijft als terugvalpad als Keycloak plat ligt (lab).
-      admin_user: admin
-      admin_password: admin
     auth.generic_oauth:
       # auth_url is voor de browser (via de gateway); token/userinfo gaan
       # in-cluster via de Service — Keycloak's backchannelDynamic houdt `iss` gelijk.

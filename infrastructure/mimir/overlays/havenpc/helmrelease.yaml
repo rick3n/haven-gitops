@@ -22,6 +22,10 @@ spec:
   values:
     deploymentMode: monolithic
     fullnameOverride: mimir
+    global:
+      extraEnvFrom:
+        - secretRef:
+            name: s3-credentials
 
     mimir:
       structuredConfig:
@@ -30,8 +34,8 @@ spec:
             backend: s3
             s3:
               endpoint: garage.garage.svc:3900
-              access_key_id: GK189d726f849af84af01bdfeb # static Garage key for local env ONLY!
-              secret_access_key: f44a7eb0d58c8dd785c5494506445abe93cd75afab48fa0dd2db35bdd78a01f0 # static Garage secret for local env ONLY!
+              access_key_id: "${S3_ACCESS_KEY_ID}"
+              secret_access_key: "${S3_SECRET_ACCESS_KEY}"
               insecure: true
         blocks_storage:
           s3:

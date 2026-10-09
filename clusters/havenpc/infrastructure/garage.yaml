@@ -32,6 +32,10 @@ spec:
   serviceAccountName: kustomize-controller
   path: ./infrastructure/garage/config/havenpc
   prune: true
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
   wait: true
   dependsOn:
     - name: garage-controller

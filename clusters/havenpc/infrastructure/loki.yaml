@@ -11,6 +11,10 @@ spec:
   serviceAccountName: kustomize-controller
   path: ./infrastructure/loki/overlays/havenpc
   prune: true
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
   wait: true
   dependsOn:
     - name: cluster-resources

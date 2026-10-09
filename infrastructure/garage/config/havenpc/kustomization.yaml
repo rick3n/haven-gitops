@@ -3,3 +3,4 @@ kind: Kustomization
 namespace: garage
 resources:
   - postconfig.yaml
+  - s3-credentials.sops.yaml
