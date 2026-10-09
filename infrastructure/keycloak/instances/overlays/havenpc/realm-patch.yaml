@@ -1,0 +1,96 @@
+# Haven-lab: gebruikers, ACM-demogroepen en OIDC-clients voor Open Zaak en
+# Open Notificaties. Wachtwoorden/secrets via placeholders uit Secret realm-havenpc.
+- op: add
+  path: /spec/placeholders
+  value:
+    RICK_PASSWORD: { secret: { name: realm-havenpc, key: RICK_PASSWORD } }
+    DEMO_PASSWORD: { secret: { name: realm-havenpc, key: DEMO_PASSWORD } }
+    OPENZAAK_CLIENT_SECRET: { secret: { name: realm-havenpc, key: OPENZAAK_CLIENT_SECRET } }
+    OPENNOTIFICATIES_CLIENT_SECRET: { secret: { name: realm-havenpc, key: OPENNOTIFICATIES_CLIENT_SECRET } }
+- op: add
+  path: /spec/realm/groups/-
+  value: { name: acm-loket, path: /acm-loket }
+- op: add
+  path: /spec/realm/groups/-
+  value: { name: acm-behandelaar, path: /acm-behandelaar }
+- op: add
+  path: /spec/realm/groups/-
+  value: { name: acm-forensisch, path: /acm-forensisch }
+- op: add
+  path: /spec/realm/groups/-
+  value: { name: acm-toezicht, path: /acm-toezicht }
+- op: add
+  path: /spec/realm/users
+  value:
+    - username: rick
+      enabled: true
+      email: rick@3n.nl
+      emailVerified: true
+      firstName: Rick
+      lastName: "3n.nl"
+      groups: [ /k8s-admins ]
+      credentials: [ { type: password, value: "${RICK_PASSWORD}", temporary: false } ]
+    - username: loket.demo
+      enabled: true
+      email: loket.demo@haven.3n.nl
+      emailVerified: true
+      firstName: Lotte
+      lastName: Loket
+      groups: [ /acm-loket ]
+      credentials: [ { type: password, value: "${DEMO_PASSWORD}", temporary: false } ]
+    - username: behandelaar.demo
+      enabled: true
+      email: behandelaar.demo@haven.3n.nl
+      emailVerified: true
+      firstName: Bas
+      lastName: Behandelaar
+      groups: [ /acm-behandelaar ]
+      credentials: [ { type: password, value: "${DEMO_PASSWORD}", temporary: false } ]
+    - username: forensisch.demo
+      enabled: true
+      email: forensisch.demo@haven.3n.nl
+      emailVerified: true
+      firstName: Fatima
+      lastName: Forensisch
+      groups: [ /acm-forensisch ]
+      credentials: [ { type: password, value: "${DEMO_PASSWORD}", temporary: false } ]
+    - username: toezicht.demo
+      enabled: true
+      email: toezicht.demo@haven.3n.nl
+      emailVerified: true
+      firstName: Tom
+      lastName: Toezicht
+      groups: [ /acm-toezicht ]
+      credentials: [ { type: password, value: "${DEMO_PASSWORD}", temporary: false } ]
+- op: add
+  path: /spec/realm/clients/-
+  value:
+    clientId: openzaak
+    name: Open Zaak
+    publicClient: false
+    secret: "${OPENZAAK_CLIENT_SECRET}"
+    standardFlowEnabled: true
+    redirectUris: [ "https://openzaak.haven.3n.nl/oidc/callback/", "https://openzaak.haven.3n.nl/*" ]
+    webOrigins: [ "https://openzaak.haven.3n.nl" ]
+    defaultClientScopes: [ email, profile ]
+    protocolMappers:
+      - name: groups
+        protocol: openid-connect
+        protocolMapper: oidc-group-membership-mapper
+        config: { full.path: "false", claim.name: groups, id.token.claim: "true", access.token.claim: "true", userinfo.token.claim: "true" }
+- op: add
+  path: /spec/realm/clients/-
+  value:
+    clientId: opennotificaties
+    name: Open Notificaties
+    publicClient: false
+    secret: "${OPENNOTIFICATIES_CLIENT_SECRET}"
+    standardFlowEnabled: true
+    redirectUris: [ "https://opennotificaties.haven.3n.nl/oidc/callback/", "https://opennotificaties.haven.3n.nl/*" ]
+    webOrigins: [ "https://opennotificaties.haven.3n.nl" ]
+    defaultClientScopes: [ email, profile ]
+    protocolMappers:
+      - name: groups
+        protocol: openid-connect
+        protocolMapper: oidc-group-membership-mapper
+        config: { full.path: "false", claim.name: groups, id.token.claim: "true", access.token.claim: "true", userinfo.token.claim: "true" }

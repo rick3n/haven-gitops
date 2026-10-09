@@ -4,6 +4,7 @@ namespace: keycloak-instances
 resources:
   - ../../base
   - secret.sops.yaml      # KEYCLOAK_ADMIN_PASSWORD, versleuteld met age (Flux decryption)
+  - realm-users.sops.yaml # wachtwoorden demo-accounts + OIDC-clientsecrets (placeholders)
 patches:
   - target:
       kind: Keycloak
@@ -35,3 +36,7 @@ patches:
       - op: replace
         path: /spec/realm/clients/2/redirectUris/0
         value: "https://opencost.haven.3n.nl/oauth2/callback"
+  - target:
+      kind: KeycloakRealmImport
+      name: havenplus-realm-import
+    path: realm-patch.yaml

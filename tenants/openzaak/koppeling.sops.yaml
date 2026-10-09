@@ -1,9 +1,6 @@
-# ZGW-credentials voor de koppeling Open Zaak <-> Open Notificaties:
-#   client_id "openzaak"          — Open Zaak publiceert notificaties bij ON
-#   client_id "opennotificaties"  — ON leest de Autorisaties API van Open Zaak
-# Beide kanten kennen beide secrets (django-setup-configuration, value_from.env).
-# Naam bewust niet "<app>-config-secrets": die naam beheert de Helm-chart zelf
-# en Helm ruimt hem op bij de upgrade naar existingConfigurationSecrets.
+# ZGW-credentials voor de koppeling Open Zaak <-> Open Notificaties én de
+# OIDC-clientsecrets (Keycloak realm havenplus). Zie realm-patch.yaml in de fork.
+# Naam bewust niet "<app>-config-secrets": die beheert de Helm-chart zelf.
 apiVersion: v1
 kind: Secret
 metadata:
@@ -11,21 +8,22 @@ metadata:
     namespace: openzaak
 type: Opaque
 stringData:
-    secret_openzaak: ENC[AES256_GCM,data:qSyOKozLW2n2fCK0EcHBVNZ3h++wRk3O6mrMhvHxMDTv7vK7HX66WzmdNGN/FlCk,iv:qYVnSls62uJwjGuX+mXgkAtts7ApUhA+4yl/T9a6rsM=,tag:VkiLcw2FEigjAXNkvhkUpA==,type:str]
-    secret_opennotificaties: ENC[AES256_GCM,data:OkmjXTCHUWrQObB8kVPffF8bMVMnCQw3S4dGeqxKeUzKgCe7HyMpCSMUEi/v4nJ7,iv:INNnm9Lz/egTH7Cijt55qUCzZCMa6sN0ptJ7WnRAukI=,tag:Um+vM6Zp74X3z5NvstpBcQ==,type:str]
+    secret_openzaak: ENC[AES256_GCM,data:KoMULfgvMH+ivRwAaJTKKA7lErFV56ktEIrUrBouFfDZxtOC4tX3v3gDrX806GZo,iv:eW41sRecVbE3NZ3DKAwenbF8lxcqbvsOZuIfY7UKZtw=,tag:P9ogQxed9HVd9bMo3E5hRA==,type:str]
+    secret_opennotificaties: ENC[AES256_GCM,data:21TDKScqRU3Mwkzi6GwHaH8RM4yKPBFpIz8sVvcKRh7vwCWUXLn6mUx617TYydJp,iv:ZRyuLTqHaj6G5Fdyv2AGivHBuOi7USwQQHvKwz/nuxM=,tag:Y6aUa2TXh2b3CNmegr5IVg==,type:str]
+    oidc_client_secret: ENC[AES256_GCM,data:y8ZWYC6HBJ2ilP9y9PotGfYfBWOBZbfKbpuRVLYDPhSqJYPKlvwPEQ==,iv:gcy+LFFtqfXGD+VR5u0IqJhyGGPorVwXQlcLpdmY3LU=,tag:Nddj9zBIUy5Z7p4+sWKKWw==,type:str]
 sops:
     age:
         - recipient: age130vs6nqtwyhsq6kj7s6u2al665n7wvnwdjx7032s7jamrpyw43esq64xfn
           enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBtc281RVNBNllGTVg5Mll3
-            Q3R6NE1yUUVsQjVYeE1mTXZVTzU4allRSzJFCmdFcGFrbEtBZkROZGpWQkRXclhO
-            dzZncnJqWldCL09QMUJ0NUh1SFRWaUEKLS0tIHpuUC8vL0ZzMmh5eDFwUEpyU1VD
-            aXYxbnFZZ0tyZ091NEQ0UURQdlVFN0EKQwEVMkh8OoHxSU4PPDhd8eVL18+zgWEI
-            RrzxUa2rKOGZj9Ta1jOMpaFzj4t1flA/bmUlBkuk2YWdapKtDnwc1w==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBsSnlSamZqMDBEa1U1ZExt
+            SHdGQmpYWFZOODRLSmZWVTNhTUZyZGRFbWlRCkUyWXlyWTRwcnMzcXNuRHRNbjZZ
+            Umt3OTZTYys5UmRQNGVuZjdDcXBLZW8KLS0tIHV3YVltWEN4UG5GaVRQZTFTNUh0
+            cjFjU2xEc1BheWRIZUJvYzM1emo1VWsKftxe958yrnhbRkjBmaH3o1GtZ6lhn9K/
+            G+dy6dvySzoiACwfHtuBbkcovB1/4FAy3NuIVYGbAwd0sDrpxL6QLQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2026-10-09T09:43:52Z"
-    mac: ENC[AES256_GCM,data:RS3SEJL6HWZboZe5fSahoKZiK/7HE5tq76nUh4f3n5YC5m1d4GWyZhHz8usFMwNzEft2B/Al80Yk/iMh/Hi7Mwh1j68nIZyssnECcwjd8538MSetCp5pZf+UW3ComzuINaLP6yz787Mh0h1kMTSoxjISb45gB76cOzwqPrGwKUo=,iv:UVfamvQ8OtO1b5yc8M8xzY47FLuwrXxXBf1U10jOJG4=,tag:N6X9IsWtdFeNQegcL1dbww==,type:str]
+    lastmodified: "2026-10-09T15:20:58Z"
+    mac: ENC[AES256_GCM,data:S9GnuY//ITeg2PGZ6wJrzBXrOgZzcNK/LfX2fOfSYe26zuExympTrRLwPliWIbh4hJ6Q8nr+cB+JbO8H+CACqejAZZQ/1rUmDQIL3jmPGbV47VU4GemBqIQPcaBdN/OrG3lDHqGMuPr1rq4Z7O0JHRJID/bPMfucHyQ+eK+3OiA=,iv:fdFckhDzdDpR14ANC2ume79EO3bgrWucNGw0fiEiTTU=,tag:v31I6+37EYZ38iOKFWiuPw==,type:str]
     encrypted_regex: ^(data|stringData)$
     version: 3.11.0
 ---
@@ -36,20 +34,21 @@ metadata:
     namespace: openzaak
 type: Opaque
 stringData:
-    secret_openzaak: ENC[AES256_GCM,data:s2XDV23sf5Qs9S5UebbUfx1snWXVIQJE36ixgbNE2CmfYigypD0agemV/uRJdGrw,iv:XeawmQ4txbrgJd3tDNH1Uiuj0f3nRrUB4ULEqEo9M70=,tag:dbsxrRh31M6VQv8BhU1yXg==,type:str]
-    secret_opennotificaties: ENC[AES256_GCM,data:Wwkhc8OFoxBK85EtQyRzdjg9JEO8EKgUzkEQxXlO3lKlcqh5Nnd1quPp1gbFEzTD,iv:badLvK9FZANZ9k2/DieYL96rraSbal5sjVg/wZUveXg=,tag:qijJm6lflWfeQReHQLHp+Q==,type:str]
+    secret_openzaak: ENC[AES256_GCM,data:pX8UZccmZWbB+5Ra6dsWx5oP4BAdphptoMXotLTYp2DF7NkuqQXP+OO/tmRB5JQk,iv:qwRFVt/OIBvV828hunZRAosPI2fY4IubFUztyg+LtYQ=,tag:9kfg1W7n1vYuPuW4f8sbpw==,type:str]
+    secret_opennotificaties: ENC[AES256_GCM,data:vri/YoO/pFU84/b/rukMY5uKwaeQrtsGeX5x3L/X5jPbIPpDfKZnZ3wl2vMx0isO,iv:ef1XnLfEFdp5F7T1ZKbNt3P4Ad5MSNKxy+OQGUWRAVQ=,tag:6d0SC+zCu6TE7IPmtiFfpw==,type:str]
+    oidc_client_secret: ENC[AES256_GCM,data:6MDmIbTydLQk9quTcBEEvU+yCMg1GXJZ20jzWkajyYLdx1UmoCCiAg==,iv:5/1akQV8/d0JMfgZ5gugmbM624nDRsNt23sWND8mKX4=,tag:RlB3VNkWgb3Jsi0k24ulvw==,type:str]
 sops:
     age:
         - recipient: age130vs6nqtwyhsq6kj7s6u2al665n7wvnwdjx7032s7jamrpyw43esq64xfn
           enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBtc281RVNBNllGTVg5Mll3
-            Q3R6NE1yUUVsQjVYeE1mTXZVTzU4allRSzJFCmdFcGFrbEtBZkROZGpWQkRXclhO
-            dzZncnJqWldCL09QMUJ0NUh1SFRWaUEKLS0tIHpuUC8vL0ZzMmh5eDFwUEpyU1VD
-            aXYxbnFZZ0tyZ091NEQ0UURQdlVFN0EKQwEVMkh8OoHxSU4PPDhd8eVL18+zgWEI
-            RrzxUa2rKOGZj9Ta1jOMpaFzj4t1flA/bmUlBkuk2YWdapKtDnwc1w==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBsSnlSamZqMDBEa1U1ZExt
+            SHdGQmpYWFZOODRLSmZWVTNhTUZyZGRFbWlRCkUyWXlyWTRwcnMzcXNuRHRNbjZZ
+            Umt3OTZTYys5UmRQNGVuZjdDcXBLZW8KLS0tIHV3YVltWEN4UG5GaVRQZTFTNUh0
+            cjFjU2xEc1BheWRIZUJvYzM1emo1VWsKftxe958yrnhbRkjBmaH3o1GtZ6lhn9K/
+            G+dy6dvySzoiACwfHtuBbkcovB1/4FAy3NuIVYGbAwd0sDrpxL6QLQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2026-10-09T09:43:52Z"
-    mac: ENC[AES256_GCM,data:RS3SEJL6HWZboZe5fSahoKZiK/7HE5tq76nUh4f3n5YC5m1d4GWyZhHz8usFMwNzEft2B/Al80Yk/iMh/Hi7Mwh1j68nIZyssnECcwjd8538MSetCp5pZf+UW3ComzuINaLP6yz787Mh0h1kMTSoxjISb45gB76cOzwqPrGwKUo=,iv:UVfamvQ8OtO1b5yc8M8xzY47FLuwrXxXBf1U10jOJG4=,tag:N6X9IsWtdFeNQegcL1dbww==,type:str]
+    lastmodified: "2026-10-09T15:20:58Z"
+    mac: ENC[AES256_GCM,data:S9GnuY//ITeg2PGZ6wJrzBXrOgZzcNK/LfX2fOfSYe26zuExympTrRLwPliWIbh4hJ6Q8nr+cB+JbO8H+CACqejAZZQ/1rUmDQIL3jmPGbV47VU4GemBqIQPcaBdN/OrG3lDHqGMuPr1rq4Z7O0JHRJID/bPMfucHyQ+eK+3OiA=,iv:fdFckhDzdDpR14ANC2ume79EO3bgrWucNGw0fiEiTTU=,tag:v31I6+37EYZ38iOKFWiuPw==,type:str]
     encrypted_regex: ^(data|stringData)$
     version: 3.11.0

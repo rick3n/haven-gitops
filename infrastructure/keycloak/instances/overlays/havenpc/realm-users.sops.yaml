@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Secret
+metadata:
+    name: realm-havenpc
+    namespace: keycloak-instances
+type: Opaque
+stringData:
+    RICK_PASSWORD: ENC[AES256_GCM,data:t+H1lIvCBU2QGPWMx2oKNw==,iv:E8H56hNLj62WkTLTwnZQkWlGUlodw/NvP3fUlkZ37zg=,tag:/iDzhT9FgBFmCANBETAadQ==,type:str]
+    DEMO_PASSWORD: ENC[AES256_GCM,data:5AlsWXdQABekrm8hwOMM,iv:PlQoeTwLd5yByuhS23+au+QyeqAzoUfYjGGEqsbU3FI=,tag:Z0YHHakShiBMiCWpDHtDRg==,type:str]
+    OPENZAAK_CLIENT_SECRET: ENC[AES256_GCM,data:WXf8wkVPeNByEj4qqTKQ5G73t4oYDtRuKjratQ158LM4cGNxxXFOOQ==,iv:gJbBejk06EK/6mGn4lIftDITc3F18lONJbwF7somrAI=,tag:GKzNMgC+27+iX90Wy4ODaQ==,type:str]
+    OPENNOTIFICATIES_CLIENT_SECRET: ENC[AES256_GCM,data:DAYrhLPdzUj79Upbr8goLhu3JMClPbdeKn6tXl6rV0WVXbfvHsQl3g==,iv:DjtmWmXIdLJA15WgyFxvTSh9e+ApX5shHqvhAdHrb6c=,tag:Dh5H2dQK9hk2k8oTfCP0ww==,type:str]
+sops:
+    age:
+        - recipient: age130vs6nqtwyhsq6kj7s6u2al665n7wvnwdjx7032s7jamrpyw43esq64xfn
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBiVTc3cStxWEZYeWVyT3lP
+            N20xYUl1Zkp6OFlNdnVZdHVOZDNwV0FaVkI0CkQzZVoyTTJGbmJsUXllcnpIWUQz
+            aWpvRjlZdlljY201b3dKZTVvdDAwNWMKLS0tIFd0NUZFSVh6eXR0YTJsN1pIbFdn
+            cUI3R240Nzc3OVFQR0NOZ21lazU3d3MKZu22hiYNykFA+Cz1HmYKPLskp/ZG4Cci
+            VTCX9zOrX7aoTJNcQmOdxk1+L7CtPJ1JVcy4FCak43CYiZU+nB21+g==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2026-10-09T15:20:56Z"
+    mac: ENC[AES256_GCM,data:BVzoi4Lmt/KxOzvLhXNR9vnVp5p4YslnuQTUEdfwFQvghQheVKhTLlob+aARfifck1AkB2JsfCz4N2qz7PtJhT4OgakjP1UQu06ipceUTtPER/Q/3laBj21uj6NUQMH4oRzWpILvCqNql1JrzMClkDl6KyfyT1rnmeJ+P9fsIIw=,iv:UTbhNp/EUfW6W7bxAUlULLrgzF/irt1XGTw37cKQfPU=,tag:wu3Bdf9aS1+o0hmljxDpHQ==,type:str]
+    encrypted_regex: ^(data|stringData)$
+    version: 3.11.0
