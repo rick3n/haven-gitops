@@ -16,8 +16,22 @@ eigenschappen, applicaties, Keycloak, demoscenario, bewust-niet).
 |---|---|---|
 | `catalogus` | Catalogus `ACM` (RSIN 000000000) met 10 informatieobjecttypen en 3 zaaktypen, gepubliceerd | bestaat → overslaan (gepubliceerde zaaktypen zijn immutable) |
 | `applicaties` | `loket`, `behandeling`, `forensisch` met autorisaties (zrc per zaaktype, drc per documenttype, max. vertrouwelijkheid) | bestaat → `PUT` (altijd in sync met git) |
-| `demo` | 5 meldingen (4× SnelKoop B.V., 1× ruis), onderzoek `SO-2026-0001` met de meldingen eraan, triage, verzoek tot vordering; vorderingszaak `V-2026-0001` (geheim) met vordering en ruwe dataset | per identificatie: bestaat → overslaan |
-| `check` | Stap 6 van het scenario: `behandeling` leest het onderzoek (200), krijgt 403 op de vorderingszaak en de ruwe dataset, ziet 0 vorderingszaken | exit 1 als de scheiding niet klopt |
+| `demo [snelkoop\|spoor\|all]` | Per casus: 5 meldingen, onderzoek `SO-2026-000n` met de meldingen eraan, triage, verzoek tot vordering; vorderingszaak `V-2026-000n` (geheim) met vordering en ruwe dataset | per identificatie: bestaat → overslaan |
+| `check` | Stap 6 van het scenario, voor beide casussen: `behandeling` leest het onderzoek (200), krijgt 403 op de vorderingszaak en de ruwe dataset, ziet 0 vorderingszaken | exit 1 als de scheiding niet klopt |
+
+Twee casussen (`CASUSSEN` in het script):
+
+| | `snelkoop` (nr 1) | `spoor` (nr 2) |
+|---|---|---|
+| Meldingen | CM-2026-0001..05, webwinkel levert niet | CM-2026-0101..05, reizigers GoVolta Amsterdam–Berlijn, 9 oktober: zeven uur vast bij Bad Bentheim |
+| Loket | drie keer "Signaal geregistreerd" | drie keer **"Doorverwezen"** (reizigersrechten: ILT / Geschillencommissie OV — geen ACM-bevoegdheid), twee keer signaal over NS |
+| Onderzoek | SO-2026-0001: structurele niet-nakoming | SO-2026-0002: benadeling nieuwkomer door NS/DB (verzoek GoVolta aan de ACM; AJC, defecte ICE niet teruggezet) |
+| Vordering | V-2026-0001 bij het betaalplatform | V-2026-0002 bij ProRail: verkeersleidingslogs en communicatie 9 okt 17:00–01:00; DB InfraGO via de Bundesnetzagentur |
+| Ruwe data | transacties van niet-betrokken klanten | álle treinen van die avond, met namen en roosters van verkeersleiders |
+
+De spoorcasus is een **reconstructie uit persberichten** (Treinenweb, Oost, Treinreiziger,
+10 oktober 2026); de bevindingen, vorderingen en datasets zijn verzonnen en stellen niets
+vast over NS, DB, ProRail of GoVolta. KvK/RSIN-nummers zijn demowaarden.
 
 De Job `acm-desired-state` draait `all` in het Open Zaak-image (heeft `requests`
 en `PyJWT`). Het script zit als ConfigMap met hash-suffix in de tenant:
@@ -55,8 +69,10 @@ op havenpc: `pw openzaak openzaak-koppeling secret_behandeling` (zie
 
 ## Handmatig draaien en testen
 
-- `run-local.sh <catalogus|applicaties|demo|check|all>` — draait `acm.py` in
-  de Open Zaak-pod met de secrets uit het cluster (ontwikkelen zonder Flux).
+- `run-local.sh <catalogus|applicaties|demo|check|all> [snelkoop|spoor|all]` — draait
+  `acm.py` in een eigen tijdelijke pod met de secrets uit het cluster (ontwikkelen
+  zonder Flux). `ACM_NODE=worker2` kiest de node. Niet in de Open Zaak-webpod: die
+  zit met uwsgi al tegen zijn geheugenlimiet en de kernel killt dan het script.
 - `test-public.sh` — stap 6 via `https://openzaak.haven.3n.nl` met curl, zoals
   in de demo: 200 op CM/SO, `count: 0` op VORDERING, 403 op de vorderingszaak.
 
@@ -65,6 +81,16 @@ op zaaktype-URL. Het script praat in-cluster maar stuurt `Host:
 openzaak.haven.3n.nl` + `X-Forwarded-Proto: https`, zodat alles canoniek is en
 ook de publieke host werkt. Een API-client die via `openzaak-nginx.openzaak.svc`
 praat zónder die headers krijgt daarom 403.
+
+## Valkuilen
+
+- **Scopenamen.** Open Zaak 1.30 kent `zaken.statussen.toevoegen`; het oudere
+  `zaken.statussen.zetten` wordt door het Autorisaties-API geaccepteerd maar matcht
+  nergens op ("Met de 'zaken.aanmaken' scope mag je slechts 1 status zetten"). De
+  geldige namen staan in `components/*/api/scopes.py` van het image.
+- **Halve zaken.** Breekt een run af, dan blijven zaken zonder vervolgstatus achter
+  en slaat het script ze de volgende keer over (bestaat → overslaan). Verwijder ze
+  dan als `openzaak`-client (`DELETE` op de zaak) en draai opnieuw.
 
 ## Bewust niet (nu)
 
