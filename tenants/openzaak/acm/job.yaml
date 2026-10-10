@@ -1,0 +1,46 @@
+# ACM-demo als desired state: catalogus, zaaktypen, applicaties en demodata.
+# Draait in het Open Zaak-image (heeft requests + PyJWT), idempotent, en eindigt
+# met de 403-test: faalt de scheiding forensisch/behandeling, dan faalt de Job.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: acm-desired-state
+  annotations:
+    kustomize.toolkit.fluxcd.io/force: Enabled   # Jobs zijn immutable; bij wijziging opnieuw aanmaken
+spec:
+  backoffLimit: 8            # Open Zaak en zijn config-job moeten eerst klaar zijn; retries overbruggen dat
+  ttlSecondsAfterFinished: 604800
+  template:
+    metadata:
+      labels: { app.kubernetes.io/name: acm-desired-state }
+    spec:
+      restartPolicy: Never
+      securityContext:
+        fsGroup: 1000
+        seccompProfile: { type: RuntimeDefault }
+      containers:
+        - name: acm
+          image: openzaak/open-zaak:1.30.0
+          command: [ python, /acm/acm.py, all ]
+          env:
+            - { name: OPENZAAK_URL, value: http://openzaak-nginx.openzaak.svc }
+            - { name: OPENZAAK_HOST, value: openzaak.haven.3n.nl }
+            - { name: OPENZAAK_SECRET, valueFrom: { secretKeyRef: { name: openzaak-koppeling, key: secret_openzaak } } }
+            - { name: LOKET_SECRET, valueFrom: { secretKeyRef: { name: openzaak-koppeling, key: secret_loket } } }
+            - { name: BEHANDELING_SECRET, valueFrom: { secretKeyRef: { name: openzaak-koppeling, key: secret_behandeling } } }
+            - { name: FORENSISCH_SECRET, valueFrom: { secretKeyRef: { name: openzaak-koppeling, key: secret_forensisch } } }
+          volumeMounts:
+            - { name: script, mountPath: /acm, readOnly: true }
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits: { memory: 256Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities: { drop: [ "ALL" ] }
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 1000
+            seccompProfile: { type: RuntimeDefault }
+      volumes:
+        - name: script
+          configMap: { name: acm-script }
