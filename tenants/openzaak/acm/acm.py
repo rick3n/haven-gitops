@@ -8,7 +8,7 @@ Ontwerp: haven/docs/acm-demo-zaaktypencatalogus.xlsx (nixos_eigen_hardware1).
 
     acm.py catalogus     catalogus ACM + 3 zaaktypen (gepubliceerd)
     acm.py applicaties   loket / behandeling / forensisch met autorisaties
-    acm.py demo          demodata t/m de vorderingszaak (stap 1-5)
+    acm.py demo [snelkoop|spoor|all]   demodata t/m de vorderingszaak (stap 1-5), per casus
     acm.py check         de 403-test (stap 6) + overzicht
     acm.py all           alles hierboven, in die volgorde
 
@@ -367,22 +367,80 @@ def cmd_applicaties():
 
 
 # ------------------------------------------------------------------------ demo
-MELDINGEN = [  # (omschrijving, sector, onderwerp, kanaal, toelichting)
-    ("Bestelling niet geleverd, geen reactie op mails", "online kopen", "niet geleverd", "web",
-     "Consument bestelde een laptop op 12 september; niets ontvangen, klantenservice onbereikbaar."),
-    ("Geld terug beloofd, nooit ontvangen", "online kopen", "niet geleverd", "telefoon",
-     "Retour geaccepteerd, terugbetaling na 6 weken nog niet gedaan."),
-    ("Reviews lijken nep, levertijd klopt niet", "online kopen", "misleiding", "web",
-     "'Op voorraad, morgen in huis' maar levering na 5 weken; alleen 5-sterrenreviews zonder tekst."),
-    ("Abonnement kon niet opgezegd worden", "telecom", "opzegging", "web",
-     "Ander bedrijf; dient als 'ruis' in de demo."),
-    ("Verborgen kosten bij het afrekenen", "online kopen", "kosten", "web",
-     "Servicekosten verschenen pas in de laatste stap van de bestelling."),
-]
-# (naam, KvK-nummer, RSIN) — RSIN moet aan de 11-proef voldoen
-ONDERNEMING = ("SnelKoop B.V.", "12345678", "823456705")
-RUIS_ONDERNEMING = ("BelVast Telecom", "87654321", "857654329")
-LEVERANCIER = ("PayFlow Payments B.V.", "855555555")
+# Twee casussen. Identificaties: snelkoop = CM-2026-00xx / SO-2026-0001 / V-2026-0001,
+# spoor = CM-2026-01xx / SO-2026-0002 / V-2026-0002.
+#
+# Alle inhoud is demomateriaal. De spoorcasus is een reconstructie uit
+# persberichten van 10 oktober 2026 (Treinenweb, Oost, Treinreiziger) over de
+# gestrande GoVolta-trein bij Bad Bentheim en het verzoek van GoVolta aan de ACM;
+# de "bevindingen", vorderingen en datasets zijn verzonnen en stellen niets vast.
+#
+# Onderneming: (naam, KvK-nummer, RSIN) — RSIN moet aan de 11-proef voldoen.
+CASUSSEN = {
+    "snelkoop": dict(
+        nr=1, prefix="CM-2026-00",
+        onderneming=("SnelKoop B.V.", "12345678", "823456705"),
+        ruis=("BelVast Telecom", "87654321", "857654329"),
+        leverancier=("PayFlow Payments B.V.", "855555555"),
+        # (omschrijving, sector, onderwerp, kanaal, toelichting, over_ruis, resultaat)
+        meldingen=[
+            ("Bestelling niet geleverd, geen reactie op mails", "online kopen", "niet geleverd", "web",
+             "Consument bestelde een laptop op 12 september; niets ontvangen, klantenservice onbereikbaar.", False, "Signaal geregistreerd"),
+            ("Geld terug beloofd, nooit ontvangen", "online kopen", "niet geleverd", "telefoon",
+             "Retour geaccepteerd, terugbetaling na 6 weken nog niet gedaan.", False, "Signaal geregistreerd"),
+            ("Reviews lijken nep, levertijd klopt niet", "online kopen", "misleiding", "web",
+             "'Op voorraad, morgen in huis' maar levering na 5 weken; alleen 5-sterrenreviews zonder tekst.", False, "Signaal geregistreerd"),
+            ("Abonnement kon niet opgezegd worden", "telecom", "opzegging", "web",
+             "Ander bedrijf; dient als 'ruis' in de demo.", True, None),
+            ("Verborgen kosten bij het afrekenen", "online kopen", "kosten", "web",
+             "Servicekosten verschenen pas in de laatste stap van de bestelling.", False, None),
+        ],
+        bewijsstuk=("Screenshot bestelling", "Screenshot orderbevestiging (demo-placeholder)."),
+        advies="Geachte heer/mevrouw, wij adviseren u ... (demo).",
+        so_oms="Signaal SnelKoop B.V.: leveringen en terugbetalingen",
+        so_toel="Aangemaakt na de derde consumentenmelding over dezelfde onderneming.",
+        beoordeling="Vier meldingen in drie weken over niet-levering en uitblijvende terugbetaling. Patroon wijst op structurele niet-nakoming. Prioriteit hoog.",
+        verzoek=("Verzoek tot vordering transactiegegevens betaalplatform",
+                 "Verzoek aan forensisch: transactie- en uitbetalingsgegevens van SnelKoop B.V. bij het betaalplatform over 1 augustus - 30 september 2026, om omvang en patroon vast te stellen."),
+        v_oms="Vordering transactiegegevens betaalplatform (SnelKoop B.V.)",
+        periode="2026-08-01 t/m 2026-09-30",
+        vordering=("Vordering PayFlow 2026-0001",
+                   "Hierbij vorderen wij op grond van ... alle transactiegegevens van SnelKoop B.V. over de periode ... (demo)."),
+        ruwe=("Ruwe dataset PayFlow export",
+              "order_id;datum;bedrag;klant_email;iban\n1001;2026-08-02;499,00;consument1@example.org;NL00DEMO0000000001\n(... 2.000 regels, ongefilterd, bevat gegevens van niet-betrokken klanten ...)"),
+    ),
+    "spoor": dict(
+        nr=2, prefix="CM-2026-01",
+        onderneming=("NS Reizigers B.V.", "32116727", "801059264"),       # KvK/RSIN: demo-waarden (11-proef), niet geverifieerd
+        ruis=("GoVolta B.V.", "91234567", "863456789"),                   # de vervoerder van de reizigers zelf
+        leverancier=("ProRail B.V. (verkeersleiding)", "801478637"),
+        meldingen=[
+            ("Zeven uur vast in de trein bij Bad Bentheim, geen informatie", "reizen", "overig", "web",
+             "Reiziger GoVolta Amsterdam-Berlijn, 9 oktober. Anderhalf uur bij Oldenzaal, daarna zeven uur bij Bad Bentheim. Geen water, geen omroepberichten.", True, "Doorverwezen"),
+            ("ICE reed door, wij mochten niet mee", "reizen", "overig", "telefoon",
+             "De ICE van NS/DB die later passeerde nam gestrande reizigers niet mee. Melder wil weten of dat mag.", False, "Signaal geregistreerd"),
+            ("Compensatie na 7 uur vertraging: wie betaalt?", "reizen", "kosten", "web",
+             "Gemiste overnachting in Berlijn (€140). GoVolta verwijst naar NS, NS naar GoVolta.", True, "Doorverwezen"),
+            ("NS-loket Hengelo: 'niet onze reizigers'", "reizen", "overig", "brief",
+             "Melder stond met kinderen op het perron; NS-personeel weigerde hulp omdat het ticket van GoVolta was.", False, "Signaal geregistreerd"),
+            ("Bussen pas na middernacht", "reizen", "overig", "web",
+             "GoVolta zette zelf bussen in, maar pas na zeven uur. Melder vraagt of de ACM hier iets mee doet.", True, "Doorverwezen"),
+        ],
+        bewijsstuk=("Foto vertrekbord Bad Bentheim", "Foto van het vertrekbord met 'Verspätung unbestimmt' (demo-placeholder)."),
+        advies="Geachte heer/mevrouw, voor compensatie bij vertraging op het spoor (Verordening (EU) 2021/782) verwijzen wij u naar de vervoerder en, bij een geschil, naar de Geschillencommissie Openbaar Vervoer; toezicht daarop ligt bij de ILT. Uw melding is als signaal geregistreerd (demo).",
+        so_oms="Signaal spoor: benadeling nieuwkomer GoVolta door NS/DB (Bad Bentheim, 9 oktober)",
+        so_toel="Aangemaakt na vijf reizigersmeldingen plus het verzoek van GoVolta aan de ACM om te onderzoeken of gevestigde vervoerders nieuwkomers bewust benadelen (Treinenweb, 10 oktober 2026). Reconstructie, demo.",
+        beoordeling="Twee bronnen: vijf reizigersmeldingen (deels doorverwezen naar ILT/Geschillencommissie — reizigersrechten zijn geen ACM-bevoegdheid) en het verzoek van GoVolta. Kernvraag: is het niet-terugzetten van de defecte ICE en het niet-meenemen van reizigers (AJC) gedrag dat een nieuwkomer op het spoor benadeelt? Betrokken: NS, DB, ProRail, DB InfraGO. Prioriteit hoog; grensoverschrijdend (Bundesnetzagentur).",
+        verzoek=("Verzoek tot vordering verkeersleidingslogs 9 oktober",
+                 "Verzoek aan forensisch: logboeken van de verkeersleiding (ProRail, Oldenzaal-grens) en de communicatie NS-DB-ProRail van 9 oktober 17:00-01:00 over de defecte ICE, het verzoek om 50 meter terug te zetten en de AJC-afstemming. Alleen de tijdlijn van dat traject is relevant voor het onderzoek."),
+        v_oms="Vordering verkeersleidingslogs ProRail (Oldenzaal-Bad Bentheim, 9 oktober)",
+        periode="2026-10-09 17:00 t/m 2026-10-10 01:00",
+        vordering=("Vordering ProRail 2026-0002",
+                   "Hierbij vorderen wij op grond van ... de logboeken van de verkeersleiding en de bijbehorende communicatie over het baanvak Oldenzaal-grens op 9 oktober 2026 (demo). Gegevens van DB InfraGO lopen via de Bundesnetzagentur."),
+        ruwe=("Ruwe dataset verkeersleiding 9 oktober",
+              "tijd;treinnr;vervoerder;baanvak;melding;dienstdoende\n17:42;ICE 141;DB;Oldenzaal-grens;stroomafnemer defect, stilstand;VL-7 (naam);\n17:55;GV 1203;GoVolta;Oldenzaal;wacht op vrijgave;VL-7 (naam)\n(... 1.400 regels over ALLE treinen van die avond, incl. namen en dienstroosters van verkeersleiders en machinisten ...)"),
+    ),
+}
 
 
 def zt_onderdelen(c, zt_url):
@@ -454,7 +512,78 @@ def document(c, z, iots, oms, titel, inhoud, vertrouwelijkheid, auteur, bron=RSI
     return doc
 
 
-def cmd_demo():
+def demo_casus(naam, c, zts, iots, loket, beh, forensisch):
+    k = CASUSSEN[naam]
+    nr, ond, ruis, lev = k["nr"], k["onderneming"], k["ruis"], k["leverancier"]
+
+    # Stap 1-2: consumentenmeldingen
+    st, rt, res, eig = zt_onderdelen(c, zts["CONSUMENTENMELDING"]["url"])
+    meldingen = []
+    for i, (oms, sector, onderwerp, kanaal, toelichting, over_ruis, resultaat) in enumerate(k["meldingen"], 1):
+        ident = f"{k['prefix']}{i:02d}"
+        bedrijf = ruis if over_ruis else ond
+        dagen = 20 - 3 * i if naam == "snelkoop" else 1
+        z, nieuw = zaak(loket, zts["CONSUMENTENMELDING"], ident, oms, toelichting,
+                        startdatum=(dt.date.today() - dt.timedelta(days=dagen)).isoformat())
+        if nieuw:
+            status(loket, z, st, "Ontvangen", (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=dagen, hours=3)).isoformat())
+            rol(loket, z, rt, "Melder", "natuurlijk_persoon", elfproef(f"9999{nr}{i:02d}"), f"Consument {nr}.{i}")
+            rol(loket, z, rt, "Betrokken onderneming", "niet_natuurlijk_persoon", bedrijf[2], bedrijf[0])
+            rol(loket, z, rt, "Behandelaar loket", "medewerker", "loket.demo", "Loket")
+            for n_, w_ in (("Sector", sector), ("Onderwerp", onderwerp), ("Kanaal", kanaal), ("Onderneming (KvK)", bedrijf[1])):
+                eigenschap(loket, z, eig, n_, w_)
+            document(loket, z, iots, "Melding", f"Melding {ident}", f"{oms}\n\n{toelichting}\n\nOnderneming: {bedrijf[0]} (KvK {bedrijf[1]})",
+                     "zaakvertrouwelijk", f"Consument {nr}.{i}")
+            if resultaat:
+                document(loket, z, iots, "Bewijsstuk consument", f"{k['bewijsstuk'][0]} {ident}", k["bewijsstuk"][1],
+                         "zaakvertrouwelijk", f"Consument {nr}.{i}")
+                status(loket, z, st, "In behandeling")
+                status(loket, z, st, "Geadviseerd")
+                document(loket, z, iots, "Adviesbrief", f"Adviesbrief {ident}", k["advies"], "zaakvertrouwelijk", "ConsuWijzer")
+                loket.post(f"{ZRC}/resultaten", {"zaak": z["url"], "resultaattype": res[resultaat]["url"],
+                                                 "toelichting": resultaat})
+                status(loket, z, st, "Afgehandeld")
+            log(f"melding {ident} aangemaakt ({bedrijf[0]}{', ' + resultaat if resultaat else ''})")
+        meldingen.append(z)
+
+    # Stap 3-4: signaalonderzoek met de meldingen eraan, triage, verzoek tot vordering
+    so_id, v_id = f"SO-2026-{nr:04d}", f"V-2026-{nr:04d}"
+    st, rt, res, eig = zt_onderdelen(c, zts["SIGNAALONDERZOEK"]["url"])
+    so, nieuw = zaak(beh, zts["SIGNAALONDERZOEK"], so_id, k["so_oms"], k["so_toel"])
+    if nieuw:
+        status(beh, so, st, "Signaal ontvangen")
+        rol(beh, so, rt, "Behandelaar onderzoek", "medewerker", "behandelaar.demo", "Behandelaar")
+        rol(beh, so, rt, "Toezichthouder", "medewerker", "toezicht.demo", "Toezicht")
+        rol(beh, so, rt, "Betrokken onderneming", "niet_natuurlijk_persoon", ond[2], ond[0])
+        beh.patch(so["url"], {"relevanteAndereZaken": [{"url": z["url"], "aardRelatie": "bijdrage"} for z in meldingen]})
+        for n_, w_ in (("Onderneming (KvK)", ond[1]), ("Aantal meldingen", len(meldingen)), ("Prioriteit", "hoog")):
+            eigenschap(beh, so, eig, n_, w_)
+        status(beh, so, st, "Triage")
+        document(beh, so, iots, "Beoordelingsnotitie", f"Beoordelingsnotitie {so_id}", k["beoordeling"], "zaakvertrouwelijk", "behandelaar.demo")
+        document(beh, so, iots, "Verzoek tot vordering", k["verzoek"][0], k["verzoek"][1], "zaakvertrouwelijk", "behandelaar.demo")
+        status(beh, so, st, "In onderzoek")
+        log(f"signaalonderzoek {so_id} aangemaakt met {len(meldingen)} gekoppelde meldingen, triage en verzoek tot vordering")
+
+    # Stap 5: forensisch maakt de vorderingszaak (geheim) met vordering en ruwe dataset
+    st, rt, res, eig = zt_onderdelen(c, zts["VORDERING"]["url"])
+    v, nieuw = zaak(forensisch, zts["VORDERING"], v_id, k["v_oms"],
+                    f"Op verzoek van {so_id}. Ruwe data blijft in deze zaak.", vertrouwelijkheid="geheim")
+    if nieuw:
+        rol(forensisch, v, rt, "Forensisch onderzoeker", "medewerker", "forensisch.demo", "Forensisch")
+        rol(forensisch, v, rt, "Aanvrager", "medewerker", "behandelaar.demo", "Behandelaar")
+        rol(forensisch, v, rt, "Leverancier", "niet_natuurlijk_persoon", lev[1], lev[0])
+        forensisch.patch(v["url"], {"relevanteAndereZaken": [{"url": so["url"], "aardRelatie": "bijdrage"}]})
+        for n_, w_ in (("Leverancier", lev[0]), ("Grondslag", "artikel 6b Instellingswet ACM (demo)"),
+                       ("Periode", k["periode"]), ("Filterstatus", "ongefilterd")):
+            eigenschap(forensisch, v, eig, n_, w_)
+        status(forensisch, v, st, "Vordering verzonden")
+        document(forensisch, v, iots, "Vordering", k["vordering"][0], k["vordering"][1], "geheim", "forensisch.demo")
+        document(forensisch, v, iots, "Ruwe dataset", k["ruwe"][0], k["ruwe"][1], "geheim", lev[0], bron=RSIN, ontvangstdatum=VANDAAG)
+        status(forensisch, v, st, "Data ontvangen")
+        log(f"vorderingszaak {v_id} aangemaakt (geheim) met vordering en ruwe dataset")
+
+
+def cmd_demo(welke="all"):
     # De demodata wordt aangemaakt mét de bijbehorende demo-client, zodat de
     # audittrail laat zien wie wat deed. Ontbreekt een secret, dan via 'openzaak'.
     def cl(name, user, repr_):
@@ -468,82 +597,9 @@ def cmd_demo():
     loket = cl("loket", "loket.demo", "Behandelaar loket (ConsuWijzer)")
     beh = cl("behandeling", "behandelaar.demo", "Behandelaar onderzoek")
     forensisch = cl("forensisch", "forensisch.demo", "Forensisch onderzoeker")
-
-    # Stap 1-2: vijf consumentenmeldingen (vier over SnelKoop, één ruis)
-    st, rt, res, eig = zt_onderdelen(c, zts["CONSUMENTENMELDING"]["url"])
-    meldingen = []
-    for i, (oms, sector, onderwerp, kanaal, toelichting) in enumerate(MELDINGEN, 1):
-        ident = f"CM-2026-{i:04d}"
-        bedrijf = RUIS_ONDERNEMING if sector == "telecom" else ONDERNEMING
-        z, nieuw = zaak(loket, zts["CONSUMENTENMELDING"], ident, oms, toelichting,
-                        startdatum=(dt.date.today() - dt.timedelta(days=20 - 3 * i)).isoformat())
-        if nieuw:
-            status(loket, z, st, "Ontvangen", (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=20 - 3 * i)).isoformat())
-            rol(loket, z, rt, "Melder", "natuurlijk_persoon", elfproef(f"99999{i:02d}"), f"Consument {i}")
-            rol(loket, z, rt, "Betrokken onderneming", "niet_natuurlijk_persoon", bedrijf[2], bedrijf[0])
-            rol(loket, z, rt, "Behandelaar loket", "medewerker", "loket.demo", "Loket")
-            for naam, waarde in (("Sector", sector), ("Onderwerp", onderwerp), ("Kanaal", kanaal), ("Onderneming (KvK)", bedrijf[1])):
-                eigenschap(loket, z, eig, naam, waarde)
-            document(loket, z, iots, "Melding", f"Melding {ident}", f"{oms}\n\n{toelichting}\n\nOnderneming: {bedrijf[0]} (KvK {bedrijf[1]})",
-                     "zaakvertrouwelijk", f"Consument {i}")
-            if i <= 3:
-                document(loket, z, iots, "Bewijsstuk consument", f"Screenshot bestelling {ident}",
-                         "Screenshot orderbevestiging (demo-placeholder).", "zaakvertrouwelijk", f"Consument {i}")
-                status(loket, z, st, "In behandeling")
-                status(loket, z, st, "Geadviseerd")
-                document(loket, z, iots, "Adviesbrief", f"Adviesbrief {ident}",
-                         "Geachte heer/mevrouw, wij adviseren u ... (demo).", "zaakvertrouwelijk", "ConsuWijzer")
-                loket.post(f"{ZRC}/resultaten", {"zaak": z["url"], "resultaattype": res["Signaal geregistreerd"]["url"],
-                                                 "toelichting": "Signaal geregistreerd op de onderneming"})
-                status(loket, z, st, "Afgehandeld")
-            log(f"melding {ident} aangemaakt ({bedrijf[0]})")
-        meldingen.append((z, bedrijf))
-
-    # Stap 3: derde melding over SnelKoop -> signaalonderzoek met de meldingen eraan
-    st, rt, res, eig = zt_onderdelen(c, zts["SIGNAALONDERZOEK"]["url"])
-    so, nieuw = zaak(beh, zts["SIGNAALONDERZOEK"], "SO-2026-0001", f"Signaal {ONDERNEMING[0]}: leveringen en terugbetalingen",
-                     "Aangemaakt na de derde consumentenmelding over dezelfde onderneming.")
-    if nieuw:
-        status(beh, so, st, "Signaal ontvangen")
-        rol(beh, so, rt, "Behandelaar onderzoek", "medewerker", "behandelaar.demo", "Behandelaar")
-        rol(beh, so, rt, "Toezichthouder", "medewerker", "toezicht.demo", "Toezicht")
-        rol(beh, so, rt, "Betrokken onderneming", "niet_natuurlijk_persoon", ONDERNEMING[2], ONDERNEMING[0])
-        snel = [z for z, b in meldingen if b == ONDERNEMING]
-        beh.patch(so["url"], {"relevanteAndereZaken": [{"url": z["url"], "aardRelatie": "bijdrage"} for z in snel]})
-        for naam, waarde in (("Onderneming (KvK)", ONDERNEMING[1]), ("Aantal meldingen", len(snel)), ("Prioriteit", "hoog")):
-            eigenschap(beh, so, eig, naam, waarde)
-        # Stap 4: triage, verzoek tot vordering
-        status(beh, so, st, "Triage")
-        document(beh, so, iots, "Beoordelingsnotitie", "Beoordelingsnotitie SO-2026-0001",
-                 "Vier meldingen in drie weken over niet-levering en uitblijvende terugbetaling. Patroon wijst op structurele niet-nakoming. Prioriteit hoog.",
-                 "zaakvertrouwelijk", "behandelaar.demo")
-        document(beh, so, iots, "Verzoek tot vordering", "Verzoek tot vordering transactiegegevens betaalplatform",
-                 "Verzoek aan forensisch: transactie- en uitbetalingsgegevens van SnelKoop B.V. bij het betaalplatform over 1 augustus - 30 september 2026, om omvang en patroon vast te stellen.",
-                 "zaakvertrouwelijk", "behandelaar.demo")
-        status(beh, so, st, "In onderzoek")
-        log("signaalonderzoek SO-2026-0001 aangemaakt met gekoppelde meldingen, triage en verzoek tot vordering")
-
-    # Stap 5: forensisch maakt de vorderingszaak (geheim) met besluit en ruwe dataset
-    st, rt, res, eig = zt_onderdelen(c, zts["VORDERING"]["url"])
-    v, nieuw = zaak(forensisch, zts["VORDERING"], "V-2026-0001", "Vordering transactiegegevens betaalplatform (SnelKoop B.V.)",
-                    "Op verzoek van SO-2026-0001. Ruwe data blijft in deze zaak.", vertrouwelijkheid="geheim")
-    if nieuw:
-        rol(forensisch, v, rt, "Forensisch onderzoeker", "medewerker", "forensisch.demo", "Forensisch")
-        rol(forensisch, v, rt, "Aanvrager", "medewerker", "behandelaar.demo", "Behandelaar")
-        rol(forensisch, v, rt, "Leverancier", "niet_natuurlijk_persoon", LEVERANCIER[1], LEVERANCIER[0])
-        forensisch.patch(v["url"], {"relevanteAndereZaken": [{"url": so["url"], "aardRelatie": "bijdrage"}]})
-        for naam, waarde in (("Leverancier", "PayFlow Payments B.V."), ("Grondslag", "artikel 6b Instellingswet ACM (demo)"),
-                             ("Periode", "2026-08-01 t/m 2026-09-30"), ("Filterstatus", "ongefilterd")):
-            eigenschap(forensisch, v, eig, naam, waarde)
-        status(forensisch, v, st, "Vordering verzonden")
-        document(forensisch, v, iots, "Vordering", "Vordering PayFlow 2026-0001",
-                 "Hierbij vorderen wij op grond van ... alle transactiegegevens van SnelKoop B.V. over de periode ... (demo).",
-                 "geheim", "forensisch.demo")
-        document(forensisch, v, iots, "Ruwe dataset", "Ruwe dataset PayFlow export",
-                 "order_id;datum;bedrag;klant_email;iban\n1001;2026-08-02;499,00;consument1@example.org;NL00DEMO0000000001\n(... 2.000 regels, ongefilterd, bevat gegevens van niet-betrokken klanten ...)",
-                 "geheim", "PayFlow Payments B.V.", bron="000000000", ontvangstdatum=VANDAAG)
-        status(forensisch, v, st, "Data ontvangen")
-        log("vorderingszaak V-2026-0001 aangemaakt (geheim) met vordering en ruwe dataset")
+    for naam in (CASUSSEN if welke == "all" else [welke]):
+        log(f"== casus {naam}")
+        demo_casus(naam, c, zts, iots, loket, beh, forensisch)
     log("demo staat klaar t/m stap 5; stap 6 = 'acm.py check', stap 7-9 live in de demo")
 
 
@@ -561,17 +617,18 @@ def cmd_check():
         log("BEHANDELING_SECRET ontbreekt; 403-test overgeslagen")
         return
     beh = Client("behandeling", sec, "behandelaar.demo", "Behandelaar onderzoek")
-    v = c.list(f"{ZRC}/zaken", identificatie="V-2026-0001", bronorganisatie=RSIN)
-    so = c.list(f"{ZRC}/zaken", identificatie="SO-2026-0001", bronorganisatie=RSIN)
-    if not v or not so:
-        log("demodata ontbreekt; draai eerst 'acm.py demo'")
-        return
-    zio = c.list(f"{ZRC}/zaakinformatieobjecten", zaak=v[0]["url"])
-    ruwe = [z for z in zio if "Ruwe" in z["titel"]]
-    tests = [("behandeling leest SO-2026-0001", beh.status("GET", so[0]["url"]), 200),
-             ("behandeling leest V-2026-0001", beh.status("GET", v[0]["url"]), 403),
-             ("behandeling leest ruwe dataset", beh.status("GET", ruwe[0]["informatieobject"]) if ruwe else None, 403),
-             ("behandeling ziet vorderingszaken in de lijst", beh.get(f"{ZRC}/zaken", zaaktype=zts["VORDERING"]["url"])["count"], 0)]
+    tests = [("behandeling ziet vorderingszaken in de lijst", beh.get(f"{ZRC}/zaken", zaaktype=zts["VORDERING"]["url"])["count"], 0)]
+    for k in CASUSSEN.values():
+        so_id, v_id = f"SO-2026-{k['nr']:04d}", f"V-2026-{k['nr']:04d}"
+        v = c.list(f"{ZRC}/zaken", identificatie=v_id, bronorganisatie=RSIN)
+        so = c.list(f"{ZRC}/zaken", identificatie=so_id, bronorganisatie=RSIN)
+        if not v or not so:
+            log(f"demodata {so_id}/{v_id} ontbreekt; draai eerst 'acm.py demo'")
+            continue
+        ruwe = [z for z in c.list(f"{ZRC}/zaakinformatieobjecten", zaak=v[0]["url"]) if "Ruwe" in z["titel"]]
+        tests += [(f"behandeling leest {so_id}", beh.status("GET", so[0]["url"]), 200),
+                  (f"behandeling leest {v_id}", beh.status("GET", v[0]["url"]), 403),
+                  (f"behandeling leest ruwe dataset {v_id}", beh.status("GET", ruwe[0]["informatieobject"]) if ruwe else None, 403)]
     ok = True
     for naam, code, verwacht in tests:
         goed = code == verwacht
@@ -583,5 +640,6 @@ def cmd_check():
 
 if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else "all"
-    {"catalogus": lambda: cmd_catalogus(), "applicaties": cmd_applicaties, "demo": cmd_demo, "check": cmd_check,
+    arg = sys.argv[2] if len(sys.argv) > 2 else "all"       # demo [snelkoop|spoor|all]
+    {"catalogus": lambda: cmd_catalogus(), "applicaties": cmd_applicaties, "demo": lambda: cmd_demo(arg), "check": cmd_check,
      "all": lambda: (cmd_catalogus(), cmd_applicaties(), cmd_demo(), cmd_check())}[cmd]()
