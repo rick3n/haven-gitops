@@ -177,6 +177,19 @@ spec:
               secret:
                 value_from:
                   env: secret_openzaak
+            # ACM-demo: drie API-clients met elk hun eigen autorisaties (zie acm/).
+            - identifier: loket
+              secret:
+                value_from:
+                  env: secret_loket
+            - identifier: behandeling
+              secret:
+                value_from:
+                  env: secret_behandeling
+            - identifier: forensisch
+              secret:
+                value_from:
+                  env: secret_forensisch
     global:
       configuration: { enabled: true }
 ---
