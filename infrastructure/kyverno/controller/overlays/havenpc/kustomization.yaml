@@ -17,15 +17,20 @@ patches:
               resources:
                 requests: { cpu: 100m, memory: 256Mi }
                 limits: { memory: 768Mi }
+          # Geheugenkrapte (32 GB host, 6 VM's): alleen de admission-controller
+          # draait; background/reports/cleanup weer aan na de RAM-uitbreiding.
           backgroundController:
+            enabled: false
             resources:
               requests: { cpu: 50m, memory: 128Mi }
               limits: { memory: 512Mi }
           reportsController:
+            enabled: false
             resources:
               requests: { cpu: 50m, memory: 192Mi }
               limits: { memory: 512Mi }
           cleanupController:
+            enabled: false
             resources:
               requests: { cpu: 20m, memory: 64Mi }
               limits: { memory: 256Mi }

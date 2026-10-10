@@ -16,6 +16,9 @@ spec:
       sourceRef: { kind: HelmRepository, name: metallb }
       interval: 12h
   values:
+    # L2-only: geen FRR en geen frr-k8s-DaemonSet (scheelt ~180 MB per worker).
     speaker:
       frr:
         enabled: false
+    frrk8s:
+      enabled: false
