@@ -66,6 +66,8 @@ class Client:
 
     def list(self, url, **params):
         out, page = [], self.get(url, **params)
+        if isinstance(page, list):      # niet elke lijst is gepagineerd (bv. zaakinformatieobjecten)
+            return page
         out += page["results"]
         while page.get("next"):
             page = self.req("GET", page["next"])
