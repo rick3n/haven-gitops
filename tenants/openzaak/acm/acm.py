@@ -216,7 +216,9 @@ RELATIES = [  # (van, naar, aard, toelichting)
     ("VORDERING", "SIGNAALONDERZOEK", "bijdrage", "Vrijgegeven bewijsstuk gaat naar het onderzoek"),
 ]
 
-ZRC_ALL = ["zaken.lezen", "zaken.aanmaken", "zaken.bijwerken", "zaken.statussen.zetten"]
+# Scopenamen van Open Zaak 1.30 (zie components/*/api/scopes.py); "zaken.statussen.zetten" uit de
+# oudere standaard wordt door het Autorisaties-API geaccepteerd maar matcht nergens op.
+ZRC_ALL = ["zaken.lezen", "zaken.aanmaken", "zaken.bijwerken", "zaken.statussen.toevoegen"]
 DRC_ALL = ["documenten.lezen", "documenten.aanmaken", "documenten.bijwerken"]
 APPLICATIES = {  # client_id: (label, [(zaaktype, zrc-scopes, drc-scopes, max vertrouwelijkheid)])
     "loket": ("ACM loket (ConsuWijzer, Open Formulieren)", [
