@@ -12,9 +12,13 @@ resources:
   - openzaak.yaml
   - opennotificaties.yaml
   - acm/job.yaml
+  - werkplek/werkplek.yaml
 # Het ACM-script als ConfigMap met hash-suffix: wijzigt het script, dan krijgt de
 # Job een nieuwe spec en maakt Flux hem opnieuw aan (annotatie force op de Job).
 configMapGenerator:
   - name: acm-script
     files:
       - acm.py=acm/acm.py
+  - name: werkplek-app
+    files:
+      - app.py=werkplek/app.py

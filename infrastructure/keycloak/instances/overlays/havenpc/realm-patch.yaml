@@ -7,6 +7,7 @@
     DEMO_PASSWORD: { secret: { name: realm-havenpc, key: DEMO_PASSWORD } }
     OPENZAAK_CLIENT_SECRET: { secret: { name: realm-havenpc, key: OPENZAAK_CLIENT_SECRET } }
     OPENNOTIFICATIES_CLIENT_SECRET: { secret: { name: realm-havenpc, key: OPENNOTIFICATIES_CLIENT_SECRET } }
+    WERKPLEK_CLIENT_SECRET: { secret: { name: realm-havenpc, key: WERKPLEK_CLIENT_SECRET } }
 - op: add
   path: /spec/realm/groups/-
   value: { name: acm-loket, path: /acm-loket }
@@ -88,6 +89,25 @@
     standardFlowEnabled: true
     redirectUris: [ "https://opennotificaties.haven.3n.nl/oidc/callback/", "https://opennotificaties.haven.3n.nl/*" ]
     webOrigins: [ "https://opennotificaties.haven.3n.nl" ]
+    defaultClientScopes: [ email, profile ]
+    protocolMappers:
+      - name: groups
+        protocol: openid-connect
+        protocolMapper: oidc-group-membership-mapper
+        config: { full.path: "false", claim.name: groups, id.token.claim: "true", access.token.claim: "true", userinfo.token.claim: "true" }
+- op: add
+  path: /spec/realm/clients/-
+  value:
+    # ACM-werkplek (tenants/openzaak/werkplek): rollen-UI op de ZGW-API's.
+    # Op 10 okt ook met kcadm aangemaakt (realm was al geïmporteerd); bij een
+    # her-import komt hij hiervandaan.
+    clientId: werkplek
+    name: ACM-werkplek
+    publicClient: false
+    secret: "${WERKPLEK_CLIENT_SECRET}"
+    standardFlowEnabled: true
+    redirectUris: [ "https://werkplek.haven.3n.nl/callback", "https://werkplek.haven.3n.nl/*" ]
+    webOrigins: [ "https://werkplek.haven.3n.nl" ]
     defaultClientScopes: [ email, profile ]
     protocolMappers:
       - name: groups
