@@ -3,3 +3,34 @@ kind: Kustomization
 namespace: cnpg-system
 resources:
   - ../../base
+patches:
+  - patch: |
+      apiVersion: helm.toolkit.fluxcd.io/v2
+      kind: HelmRelease
+      metadata:
+        name: cloudnative-pg
+      spec:
+        values:
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits: { memory: 384Mi }
+        # De chart zet liveness/readiness op timeoutSeconds 1; onder belasting haalt
+        # de TLS-readyz dat niet en killt de kubelet de operator om de 40 s. Zonder
+        # operator weigert de CNPG-webhook elke wijziging aan Clusters (ook via Flux).
+        postRenderers:
+          - kustomize:
+              patches:
+                - target: { kind: Deployment, name: cloudnative-pg }
+                  patch: |
+                    - op: replace
+                      path: /spec/template/spec/containers/0/livenessProbe/timeoutSeconds
+                      value: 5
+                    - op: replace
+                      path: /spec/template/spec/containers/0/livenessProbe/periodSeconds
+                      value: 20
+                    - op: replace
+                      path: /spec/template/spec/containers/0/livenessProbe/failureThreshold
+                      value: 6
+                    - op: replace
+                      path: /spec/template/spec/containers/0/readinessProbe/timeoutSeconds
+                      value: 5
