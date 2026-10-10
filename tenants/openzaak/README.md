@@ -25,3 +25,9 @@ Een JWT voor de API maak je met client_id/secret uit `koppeling.sops.yaml` (HS25
 
 Volgende stap: de ZTC "melding → advies" (statustypen, resultaattypen, roltypen,
 informatieobjecttypen) en Open Formulieren als meldformulier.
+
+## ACM-demo
+
+`acm/` bevat de ACM-zaaktypencatalogus, de drie API-clients met autorisaties en de
+demodata als desired state (Job `acm-desired-state`, draait bij elke wijziging van
+`acm/acm.py`). Zie `acm/README.md`.

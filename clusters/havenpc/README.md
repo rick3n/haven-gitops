@@ -22,3 +22,13 @@ Flux wordt niet ge-bootstrapt (publieke repo, geen schrijftoegang nodig):
       --path=./clusters/havenpc --prune=true --interval=10m
 
 Upstream bijhouden: `git fetch upstream && git merge upstream/main`.
+
+## Geheugenkrapte (tot de RAM-uitbreiding)
+
+Met 32 GB op de host en 27 GiB aan VM's zitten de workers op de grens: één extra
+job-pod van 150 MB was op 10 oktober genoeg voor node-brede page-cache thrash
+(load 100+ op de host, etcd/kubelet-timeouts). Daarom bewust uit:
+Kyverno background/reports/cleanup-controllers (alleen admission draait, policies op
+`failurePolicy: Ignore`), kyverno-policy-reporter, en de metallb `frr-k8s`-DaemonSet.
+Terugzetten na de uitbreiding naar 64 GB: `infrastructure/kyverno/controller/overlays/havenpc`,
+`infrastructure/havenpc-base/metallb/helmrelease.yaml` en `clusters/havenpc/infrastructure/kyverno.yaml`.
